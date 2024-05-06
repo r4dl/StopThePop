@@ -11,11 +11,11 @@
 
 import torch
 import math
-from diff_gaussian_rasterization import GaussianRasterizationSettings, GaussianRasterizer
+from diff_gaussian_rasterization import GaussianRasterizationSettings, GaussianRasterizer, SortedGaussianRasterizer
 from scene.gaussian_model import GaussianModel
 from utils.sh_utils import eval_sh
 
-def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, scaling_modifier = 1.0, override_color = None):
+def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, scaling_modifier = 1.0, override_color = None, sorted: bool = False, per_tile_depth=False, sort_window=1):
     """
     Render the scene. 
     
@@ -42,13 +42,20 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
         scale_modifier=scaling_modifier,
         viewmatrix=viewpoint_camera.world_view_transform,
         projmatrix=viewpoint_camera.full_proj_transform,
+        projmatrix_inverse=viewpoint_camera.full_proj_transform_inverse,
         sh_degree=pc.active_sh_degree,
         campos=viewpoint_camera.camera_center,
         prefiltered=False,
+        sort_window=sort_window,
+        per_tile_depth=per_tile_depth,
+        opacity_culling=True,
         debug=pipe.debug
     )
 
-    rasterizer = GaussianRasterizer(raster_settings=raster_settings)
+    if sorted:
+        rasterizer = SortedGaussianRasterizer(raster_settings=raster_settings)
+    else:
+        rasterizer = GaussianRasterizer(raster_settings=raster_settings)
 
     means3D = pc.get_xyz
     means2D = screenspace_points

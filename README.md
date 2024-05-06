@@ -142,7 +142,7 @@ python train.py -s <path to COLMAP or NeRF Synthetic dataset>
   Order of spherical harmonics to be used (no larger than 3). ```3``` by default.
   #### --convert_SHs_python
   Flag to make pipeline compute forward and backward of SHs with PyTorch instead of ours.
-  #### --convert_cov3D_python
+  #### --compute_cov3D_python
   Flag to make pipeline compute forward and backward of the 3D covariance with PyTorch instead of ours.
   #### --debug
   Enables debug mode if you experience erros. If the rasterizer fails, a ```dump``` file is created that you may forward to us in an issue so we can take a look.
@@ -242,7 +242,7 @@ python metrics.py -m <path to pre-trained model>
   Add this flag to use white background instead of black (default), e.g., for evaluation of NeRF Synthetic dataset.
   #### --convert_SHs_python
   Flag to make pipeline render with computed SHs from PyTorch instead of ours.
-  #### --convert_cov3D_python
+  #### --compute_cov3D_python
   Flag to make pipeline render with computed 3D covariance from PyTorch instead of ours.
 
 </details>

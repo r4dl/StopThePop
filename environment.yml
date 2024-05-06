@@ -1,4 +1,4 @@
-name: gaussian_splatting
+name: stopthepop
 channels:
   - pytorch
   - conda-forge

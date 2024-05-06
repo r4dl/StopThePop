@@ -21,6 +21,7 @@ parser = ArgumentParser(description="Full evaluation script parameters")
 parser.add_argument("--skip_training", action="store_true")
 parser.add_argument("--skip_rendering", action="store_true")
 parser.add_argument("--skip_metrics", action="store_true")
+parser.add_argument("--skip_num_gaussians", action="store_true")
 parser.add_argument("--output_path", default="./eval")
 args, _ = parser.parse_known_args()
 
@@ -34,22 +35,43 @@ if not args.skip_training or not args.skip_rendering:
     parser.add_argument('--mipnerf360', "-m360", required=True, type=str)
     parser.add_argument("--tanksandtemples", "-tat", required=True, type=str)
     parser.add_argument("--deepblending", "-db", required=True, type=str)
+    
+    # additional cl-args for our method
+    parser.add_argument("--sorted", action="store_true")
+    parser.add_argument("--per_tile_depth", action="store_true")
+    parser.add_argument("--sort_window", type=int, default=1)
+    parser.add_argument("--opacity_decay", type=float, default=0)
     args = parser.parse_args()
 
+# create a unique name and arguments
+name_args = ''
+custom_args = ' '
+if args.sorted:
+    name_args += '_sorted'
+    custom_args += '--sorted '
+    if args.per_tile_depth:
+        name_args += '_ptdepth'
+        custom_args += '--per_tile_depth '
+    name_args += f'_{args.sort_window}'
+    custom_args += f'--sort_window {args.sort_window}'
+    if args.opacity_decay > 0:
+        name_args += f'_decay_{args.opacity_decay}'
+        custom_args += f'--opacity_decay {args.opacity_decay}'
+
 if not args.skip_training:
-    common_args = " --quiet --eval --test_iterations -1 "
+    common_args = " --quiet --eval --test_iterations -1" + custom_args
     for scene in mipnerf360_outdoor_scenes:
         source = args.mipnerf360 + "/" + scene
-        os.system("python train.py -s " + source + " -i images_4 -m " + args.output_path + "/" + scene + common_args)
+        os.system("python train.py -s " + source + " -i images_4 -m " + args.output_path + "/" + scene + name_args + common_args)
     for scene in mipnerf360_indoor_scenes:
         source = args.mipnerf360 + "/" + scene
-        os.system("python train.py -s " + source + " -i images_2 -m " + args.output_path + "/" + scene + common_args)
+        os.system("python train.py -s " + source + " -i images_2 -m " + args.output_path + "/" + scene + name_args + common_args)
     for scene in tanks_and_temples_scenes:
         source = args.tanksandtemples + "/" + scene
-        os.system("python train.py -s " + source + " -m " + args.output_path + "/" + scene + common_args)
+        os.system("python train.py -s " + source + " -m " + args.output_path + "/" + scene + name_args + common_args)
     for scene in deep_blending_scenes:
         source = args.deepblending + "/" + scene
-        os.system("python train.py -s " + source + " -m " + args.output_path + "/" + scene + common_args)
+        os.system("python train.py -s " + source + " -m " + args.output_path + "/" + scene + name_args + common_args)
 
 if not args.skip_rendering:
     all_sources = []
@@ -62,14 +84,20 @@ if not args.skip_rendering:
     for scene in deep_blending_scenes:
         all_sources.append(args.deepblending + "/" + scene)
 
-    common_args = " --quiet --eval --skip_train"
+    common_args = " --quiet --eval --skip_train" + custom_args
     for scene, source in zip(all_scenes, all_sources):
-        os.system("python render.py --iteration 7000 -s " + source + " -m " + args.output_path + "/" + scene + common_args)
-        os.system("python render.py --iteration 30000 -s " + source + " -m " + args.output_path + "/" + scene + common_args)
+        for it in [7000, 30000]:
+            os.system(f"python render.py --iteration {it} -s " + source + " -m " + args.output_path + "/" + scene + name_args + common_args)
 
 if not args.skip_metrics:
-    scenes_string = ""
     for scene in all_scenes:
-        scenes_string += "\"" + args.output_path + "/" + scene + "\" "
+        scenes_string = "\"" + args.output_path + "/" + scene
 
-    os.system("python metrics.py -m " + scenes_string)
+        os.system("python metrics.py -m " + scenes_string + name_args)
+
+# evaluate the number of gaussians for each model
+if not args.skip_num_gaussians:
+    for scene in all_scenes:
+        scenes_string = "\"" + args.output_path + "/" + scene
+
+        os.system("python num_gaussians.py -m " + scenes_string + name_args)

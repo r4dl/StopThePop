@@ -89,3 +89,9 @@ Title: pytorch-ssim\
 Project code: https://github.com/Po-Hsun-Su/pytorch-ssim\
 Copyright Evan Su, 2017\
 License: https://github.com/Po-Hsun-Su/pytorch-ssim/blob/master/LICENSE.txt (MIT)
+
+The contents of the file ```utils/flip.py``` are based on publicly available code, which falls under the BSD-3 license. 
+Title: FLIP\
+Project code: https://github.com/NVlabs/flip/blob/main/pytorch/flip_loss.py\
+Copyright NVIDIA CORPORATION & AFFILIATES, 2020-2024\
+License: https://github.com/NVlabs/flip/blob/main/README.md (BSD-3)
