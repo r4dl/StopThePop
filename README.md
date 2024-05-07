@@ -99,8 +99,6 @@ python train.py -s <path to COLMAP or NeRF Synthetic dataset> --sorted --per_til
   Specifies the size of the sort window. If ```> 24```, we use our hierarchical renderer.
   #### --opacity_decay
   Train with Opacity Decay - this results in comparable image metrics with significantly fewer Gaussians. We used  ```--opacity_decay 0.9995``` for the reported results in our paper.
-  #### --skip_num_gaussians
-  Do not output the number of Gaussians.
 </details>
 <details>
   <summary><span style="font-weight: bold; opacity: 50%;">Original Command Line Arguments for train.py</span></summary>
@@ -255,6 +253,8 @@ python full_eval.py -m360 <mipnerf360 folder> -tat <tanks and temples folder> -d
   Specifies the size of the sort window. If ```> 24```, we use our hierarchical renderer.
   #### --opacity_decay
   Train with Opacity Decay - this results in comparable image metrics with significantly fewer Gaussians. We used  ```--opacity_decay 0.9995``` for the reported results in our paper.
+  #### --skip_num_gaussians
+  Do not output the number of Gaussians.
 </details>
 <details>
 <summary><span style="font-weight: bold; opacity: 50%;">Original Command Line Arguments for full_eval.py</span></summary>

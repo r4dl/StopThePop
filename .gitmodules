@@ -7,3 +7,6 @@
 [submodule "SIBR_viewers"]
 	path = SIBR_viewers
 	url = https://gitlab.inria.fr/sibr/sibr_core.git
+[submodule "popping_detection"]
+	path = popping_detection
+	url = git@github.com:r4dl/PoppingDetection.git
