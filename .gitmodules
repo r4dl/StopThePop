@@ -1,3 +1,12 @@
 [submodule "popping_detection"]
 	path = popping_detection
 	url = git@github.com:r4dl/PoppingDetection.git
+[submodule "submodules/simple-knn"]
+	path = submodules/simple-knn
+	url = https://gitlab.inria.fr/bkerbl/simple-knn.git
+[submodule "submodules/diff-gaussian-rasterization"]
+	path = submodules/diff-gaussian-rasterization
+	url = https://github.com/r4dl/StopThePop-Rasterization.git
+[submodule "SIBR_viewers"]
+	path = SIBR_viewers
+	url = https://github.com/r4dl/SIBR_StopThePop.git
