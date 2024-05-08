@@ -11,13 +11,13 @@
 <br>
 | [Webpage](https://r4dl.github.io/StopThePop) 
 | [Full Paper](https://arxiv.org/abs/2402.00525) 
-| [Video](... todo ...) 
+| [Video](https://youtu.be/EmcXtHYhigk) 
 | [T&T+DB COLMAP (650MB)](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/datasets/input/tandt_db.zip) 
 <!-- | [Pre-trained Models (14 GB)](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/datasets/pretrained/models.zip)  -->
 <br>
 <!-- TODO: add a gif as teaser, this does not look nice  -->
 
-![Teaser image](assets/teaser.png)
+![Teaser image](assets/teaser.gif)
 
 This repository contains the official authors implementation associated with the paper "StopThePop: Sorted Gaussian Splatting for View-Consistent Real-time Rendering", which can be found [here](https://r4dl.github.io/StopThePop). 
 <!-- We further provide the reference images used to create the error metrics reported in the paper, as well as recently created, pre-trained models.  -->
@@ -34,7 +34,7 @@ Abstract: *Gaussian Splatting has emerged as a prominent model for constructing 
     <h2 class="title">BibTeX</h2>
     <pre><code>@article{radl2024stopthepop,
   author    = {Radl, Lukas and Steiner, Michael and Parger, Mathias and Weinrauch, Alexander and Kerbl, Bernhard and Steinberger, Markus},
-  title     = {{StopThePop: Sorted Gaussians Splatting for View-Consistent Real-time Rendering}},
+  title     = {{StopThePop: Sorted Gaussian Splatting for View-Consistent Real-time Rendering}},
   journal   = {ACM Transactions on Graphics},
   number    = {4},
   volume    = {43},
