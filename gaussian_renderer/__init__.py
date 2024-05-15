@@ -15,7 +15,7 @@ from diff_gaussian_rasterization import GaussianRasterizationSettings, GaussianR
 from scene.gaussian_model import GaussianModel
 from utils.sh_utils import eval_sh
 
-def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, scaling_modifier = 1.0, override_color = None, sorted: bool = False, per_tile_depth=False, sort_window=1):
+def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, scaling_modifier = 1.0, override_color = None, per_tile_depth: bool=False, sort_window: int=1):
     """
     Render the scene. 
     
@@ -46,8 +46,8 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
         sh_degree=pc.active_sh_degree,
         campos=viewpoint_camera.camera_center,
         prefiltered=False,
-        # sort_window=sort_window,
-        # per_tile_depth=per_tile_depth,
+        sort_window=sort_window,
+        per_tile_depth=per_tile_depth,
         # opacity_culling=True,
         debug=pipe.debug
     )
