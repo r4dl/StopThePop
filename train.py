@@ -84,7 +84,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
 
         bg = torch.rand((3), device="cuda") if opt.random_background else background
 
-        render_pkg = render(viewpoint_cam, gaussians, pipe, bg, sorted=sorted, per_tile_depth=per_tile_depth, sort_window=sort_window)
+        render_pkg = render(viewpoint_cam, gaussians, pipe, bg, per_tile_depth=per_tile_depth, sort_window=sort_window)
         image, viewspace_point_tensor, visibility_filter, radii = render_pkg["render"], render_pkg["viewspace_points"], render_pkg["visibility_filter"], render_pkg["radii"]
 
         # Loss
