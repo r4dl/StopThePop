@@ -77,7 +77,9 @@ The implementation includes 4 flavors of Gaussian Splatting:
   <li>Vanilla 3DGS</li>
 </ul>
 
-```json
+The `train.py` script takes a `.json` config file as input, which should contain the following information (this example is also the default `config.json`, if none is provided):
+
+```cpp
 {
     "sort_settings": 
     {
@@ -87,8 +89,8 @@ The implementation includes 4 flavors of Gaussian Splatting:
         "queue_sizes": 
         {
             "per_pixel": 4,  // Used for: Per-Pixel K-Buffer and Hierarchical
-            "tile_2x2": 8,   // Used for Hierarchical
-            "tile_4x4": 64   // Used for Hierarchical
+            "tile_2x2": 8,   // Used only for Hierarchical
+            "tile_4x4": 64   // Used only for Hierarchical
         }
     },
     "culling_settings": 
@@ -97,7 +99,7 @@ The implementation includes 4 flavors of Gaussian Splatting:
         "tight_opacity_bounding": false,   // Bound Gaussians by considering their opacity value
         "tile_based_culling": false,       /* Reject Tiles where Max Contribution is below thershold;
                                                Recommended to be used together with Load Balancing*/
-        "hierarchical_4x4_culling": false, // Used for Hierarchical
+        "hierarchical_4x4_culling": false, // Used only for Hierarchical
     },
     "load_balancing": false,      // Use load balancing for per-tile calculations (culling and depth) and duplication
     "proper_ewa_scaling": false,  /* Proper dilation of opacity, as proposed by Yu et al. ("Mip-Splatting");
@@ -105,15 +107,18 @@ The implementation includes 4 flavors of Gaussian Splatting:
 }
 ```
 
-To run the optimizer, simply use
+These values can be overwritten through the command line. Call `python train.py --help` to see all available options.
+At the start of training, the provided arguments will be written into the output directory. The `render.py` script uses the `config.json` in the model directory per default, with the option to overwrite through the command line.
+
+To train different example models (see the corresponding config files for the used settings), run:
 
 ```shell
-# Our Implementation
-python train.py -s <path to COLMAP or NeRF Synthetic dataset> --sorted --per_tile_depth --sort_window 25
-# 3DGS optimized
-python train.py -s <path to COLMAP or NeRF Synthetic dataset>
-# Locally Resorted Rendering
-python train.py -s <path to COLMAP or NeRF Synthetic dataset> --sorted --per_tile_depth --sort_window {4, 8, 16, 24}
+# Our Hierarchical Rasterizer, as proposed in StopThePop
+python train.py config/stopthepop.json -s <path to COLMAP or NeRF Synthetic dataset>
+# Default 3DGS
+python train.py config/3dgs.json -s <path to COLMAP or NeRF Synthetic dataset>
+# Per-Pixel K-Buffer Sort
+python train.py config/kbuffer.json -s <path to COLMAP or NeRF Synthetic dataset>
 ```
 
 <details>
