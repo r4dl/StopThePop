@@ -45,7 +45,7 @@ Abstract: *Gaussian Splatting has emerged as a prominent model for constructing 
 </section>
 
 ## Overview
-Our repository is built on [3D Gaussian Splatting](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/): For a full breakdown on how to get the code running, please consider the [3DGS's Readme](https://github.com/graphdeco-inria/gaussian-splatting/blob/main/README.md).
+Our repository is built on [3D Gaussian Splatting](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/): For a full breakdown on how to get the code running, please consider [3DGS's Readme](https://github.com/graphdeco-inria/gaussian-splatting/blob/main/README.md).
 
 ## Cloning the Repository
 
@@ -65,17 +65,45 @@ SET DISTUTILS_USE_SDK=1 # Windows only
 conda env create --file environment.yml
 conda activate stopthepop
 ```
-Please note that this process assumes that you have CUDA SDK **11** installed, not **12**.
-
+This process assumes that you have CUDA SDK **11** installed, not **12**.
 
 ### Running
 
-Our implementation includes 3 flavors of Gaussian Splatting:
+The implementation includes 4 flavors of Gaussian Splatting:
 <ul>
-  <li><strong>Our Hierarchical Rasterizer</strong> (recommended)</li>
-  <li>3DGS optimized</li>
-  <li>A Locally Resorted Rasterizer</li>
-</ul> 
+  <li>Ours: <strong>Hierarchically Sorted Rasterizer</strong> (recommended)</li>
+  <li>Ours: Per-pixel Approximate Sort (k-Buffer)</li>
+  <li>Ours: Per-pixel Full Sort (only forward pass supported; no optimization) </li>
+  <li>Vanilla 3DGS</li>
+</ul>
+
+```json
+{
+    "sort_settings": 
+    {
+        "sort_mode": 0,      // Global (0), Per-Pixel Full (1), Per-Pixel K-Buffer (2), Hierarchical(3)
+        "sort_order": 0,     /* Viewspace Z-Depth (0), Worldspace Distance (1), 
+                                Per-Tile Depth at Tile Center (2), Per-Tile Depth at Max Contrib. Pos. (3) */
+        "queue_sizes": 
+        {
+            "per_pixel": 4,  // Used for: Per-Pixel K-Buffer and Hierarchical
+            "tile_2x2": 8,   // Used for Hierarchical
+            "tile_4x4": 64   // Used for Hierarchical
+        }
+    },
+    "culling_settings": 
+    {
+        "rect_bounding": false,            // Bound Gaussians with a rectangle (instead fo square)
+        "tight_opacity_bounding": false,   // Bound Gaussians by considering their opacity value
+        "tile_based_culling": false,       /* Reject Tiles where Max Contribution is below thershold;
+                                               Recommended to be used together with Load Balancing*/
+        "hierarchical_4x4_culling": false, // Used for Hierarchical
+    },
+    "load_balancing": false,      // Use load balancing for per-tile calculations (culling and depth) and duplication
+    "proper_ewa_scaling": false,  /* Proper dilation of opacity, as proposed by Yu et al. ("Mip-Splatting");
+                                      Model also needs to be trained with this setting */
+}
+```
 
 To run the optimizer, simply use
 
