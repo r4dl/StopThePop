@@ -10,8 +10,12 @@
 #
 
 from argparse import ArgumentParser, Namespace
+from diff_gaussian_rasterization import ExtendedSettings, GlobalSortOrder, SortMode, CullingSettings, SortSettings, SortQueueSizes
+import json
 import sys
 import os
+from typing import Any, Dict, Type
+from typing_inspect import get_args, get_generic_bases, is_generic_type, is_union_type
 
 class GroupParams:
     pass
@@ -67,6 +71,72 @@ class PipelineParams(ParamGroup):
         self.compute_cov3D_python = False
         self.debug = False
         super().__init__(parser, "Pipeline Parameters")
+
+Json = Dict[str, Any]
+def json_decoder(nt: ExtendedSettings, data: Dict[str, Any]) -> Dict:
+    decoded = {}
+    field_types = nt._field_types
+    for key in field_types:
+        value = data.get(key)
+        if value is None:
+            possible_types = get_args(field_types[key])
+            if len(possible_types) < 2 or type(None) not in possible_types:  # confirm the field is optional
+                raise ValueError(
+                    "Error decoding Json for {nt}. key '{key}' was 'None' but not listed as optional field.".format(
+                        nt=nt, key=key))
+        else:
+            field_type = field_types[key]
+            if is_generic_type(field_type):
+                field_type = get_generic_bases(field_type)[0]
+            elif is_union_type(field_type):
+                field_type = get_args(field_types[key])[0]
+            value = field_type(value)
+        decoded[key] = value
+    return decoded
+
+class SplattingSettings():
+    
+    group_config = None
+    group_settings = None
+    settings = ExtendedSettings()
+    
+    def __init__(self, parser):
+        self.group_config = parser.add_argument_group("Splatting Config")
+        self.group_config.add_argument("--splatting_config", type=str)
+        
+        self.group_settings = parser.add_argument_group("Splatting Settings")
+        self.group_settings.add_argument("--sort_mode", type=lambda sortmode: SortMode[sortmode], choices=list(SortMode))
+        self.group_settings.add_argument("--sort_order", type=lambda sortorder: GlobalSortOrder[sortorder], choices=list(GlobalSortOrder))
+        self.group_settings.add_argument("--tile_4x4", type=int, choices=[64], help='only needed if using SortMode.HIER')
+        self.group_settings.add_argument("--tile_2x2", type=int, choices=[8,12,20], help='only needed if using SortMode.HIER')
+        self.group_settings.add_argument("--per_pixel", type=int, choices=[1,2,4,8,12,16,20,24], help='if using SortMode.HIER, only {4,8,12,16} are valid')
+        self.group_settings.add_argument("--rect_bounding", type=bool, choices=[True, False])
+        self.group_settings.add_argument("--tight_opacity_bounding", type=bool, choices=[True, False])
+        self.group_settings.add_argument("--tile_based_culling", type=bool, choices=[True, False])
+        self.group_settings.add_argument("--hierarchical_4x4_culling", type=bool, choices=[True, False])
+        self.group_settings.add_argument("--load_balancing", type=bool, choices=[True, False])
+        self.group_settings.add_argument("--proper_ewa_scaling", type=bool, choices=[True, False])
+    
+    def get_settings(self, arguments):
+        # get valid choices from configargparse
+        config = None
+        
+        # load default dict, if passed
+        for arg in vars(arguments).items():
+            if any([arg[0] in z.option_strings[0] for z in self.group_config._group_actions]):
+                # json passed, load it
+                with open(arg[1], 'r') as json_file:
+                    config = json.load(json_file)[0]
+                    self.settings = ExtendedSettings.from_dict(config)
+                    
+        for arg in vars(arguments).items():
+            if any([arg[0] in z.option_strings[0] for z in self.group_settings._group_actions]):
+                # pass any options which were not given
+                if arg[1] is None:
+                    continue
+                self.settings.set_value(arg[0], arg[1])
+                
+        return self.settings
 
 class OptimizationParams(ParamGroup):
     def __init__(self, parser):
