@@ -9,9 +9,10 @@
 # For inquiries contact  george.drettakis@inria.fr
 #
 
-import torch
+import json
 import math
-from diff_gaussian_rasterization import GaussianRasterizationSettings, GaussianRasterizer
+import torch
+from diff_gaussian_rasterization import GaussianRasterizationSettings, ExtendedSettings, GaussianRasterizer, unpack
 from scene.gaussian_model import GaussianModel
 from utils.sh_utils import eval_sh
 
@@ -46,9 +47,10 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
         sh_degree=pc.active_sh_degree,
         campos=viewpoint_camera.camera_center,
         prefiltered=False,
-        sort_window=sort_window,
-        per_tile_depth=per_tile_depth,
+        # sort_window=sort_window,
+        # per_tile_depth=per_tile_depth,
         # opacity_culling=True,
+        settings=ExtendedSettings(),
         debug=pipe.debug
     )
 
