@@ -99,10 +99,15 @@ class SplattingSettings():
     group_config = None
     group_settings = None
     settings = ExtendedSettings()
+    parser = None
+    render = False
     
-    def __init__(self, parser):
-        self.group_config = parser.add_argument_group("Splatting Config")
-        self.group_config.add_argument("--splatting_config", type=str)
+    def __init__(self, parser, render=False):
+        self.parser = parser
+        self.render = render
+        if not render:
+            self.group_config = parser.add_argument_group("Splatting Config")
+            self.group_config.add_argument("--splatting_config", type=str)
         
         self.group_settings = parser.add_argument_group("Splatting Settings")
         self.group_settings.add_argument("--sort_mode", type=lambda sortmode: SortMode[sortmode], choices=list(SortMode))
@@ -122,12 +127,23 @@ class SplattingSettings():
         config = None
         
         # load default dict, if passed
-        for arg in vars(arguments).items():
-            if any([arg[0] in z.option_strings[0] for z in self.group_config._group_actions]):
-                # json passed, load it
-                with open(arg[1], 'r') as json_file:
-                    config = json.load(json_file)[0]
-                    self.settings = ExtendedSettings.from_dict(config)
+        if self.render:
+            cmdlne_string = sys.argv[1:]
+            args_cmdline = self.parser.parse_args(cmdlne_string)
+            cfgfilepath = os.path.join(args_cmdline.model_path, "config.json")
+            print("Looking for splatting config file in", cfgfilepath)
+            if os.path.exists(cfgfilepath):
+                print("Config file found: {}".format(cfgfilepath))
+                self.settings = ExtendedSettings.from_json(cfgfilepath)
+            else:
+                print("No config file found, assuming default values")
+        else:
+            for arg in vars(arguments).items():
+                if any([arg[0] in z.option_strings[0] for z in self.group_config._group_actions]):
+                    # json passed, load it
+                    with open(arg[1], 'r') as json_file:
+                        config = json.load(json_file)[0]
+                        self.settings = ExtendedSettings.from_dict(config)
                     
         for arg in vars(arguments).items():
             if any([arg[0] in z.option_strings[0] for z in self.group_settings._group_actions]):
