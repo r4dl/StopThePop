@@ -1,0 +1,21 @@
+[
+    {
+        "culling_settings": {
+            "hierarchical_4x4_culling": false,
+            "rect_bounding": true,
+            "tight_opacity_bounding": true,
+            "tile_based_culling": false
+        },
+        "load_balancing": true,
+        "proper_ewa_scaling": false,
+        "sort_settings": {
+            "queue_sizes": {
+                "per_pixel": 4,
+                "tile_2x2": 8,
+                "tile_4x4": 64
+            },
+            "sort_mode": 0,
+            "sort_order": 0
+        }
+    }
+]
