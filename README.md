@@ -54,6 +54,15 @@ The project is split into submodules, each maintained in a separate github repos
 * [SIBR_StopThePop](https://github.com/r4dl/SIBR_StopThePop): A clone of the [SIBR Core](https://gitlab.inria.fr/sibr/sibr_core) project, containing an adapted viewer with our additional settings and functionalities
 * [PoppingDetection](https://github.com/r4dl/PoppingDetection): Self-contained module for our proposed popping detection metric
 
+## Licensing
+
+The majority of the projects is licensed under the ["Gaussian-Splatting License"](LICENSE.md), with the exception of:
+
+* [PoppingDetection](https://github.com/r4dl/PoppingDetection): MIT License
+* [StopThePop header files](submodules/diff-gaussian-rasterization/cuda_rasterizer/stopthepop): MIT License
+
+There are also several changes in the original source code.
+If you use any of our additional functionalities, please cite our paper and link to this repository.
 
 ## Cloning the Repository
 
@@ -91,9 +100,9 @@ The `train.py` script takes a `.json` config file as the argument `--splatting_c
 {
   "sort_settings": 
   {
-    "sort_mode": 0,      // Global (0), Per-Pixel Full (1), Per-Pixel K-Buffer (2), Hierarchical(3)
-    "sort_order": 0,     /* Viewspace Z-Depth (0), Worldspace Distance (1), 
-                            Per-Tile Depth at Tile Center (2), Per-Tile Depth at Max Contrib. Pos. (3) */
+    "sort_mode": 0,    // Global (0), Per-Pixel Full (1), Per-Pixel K-Buffer (2), Hierarchical(3)
+    "sort_order": 0,   /* Viewspace Z-Depth (0), Worldspace Distance (1), 
+                          Per-Tile Depth at Tile Center (2), Per-Tile Depth at Max Contrib. Pos. (3) */
     "queue_sizes": 
     {
       "per_pixel": 4,  // Used for: Per-Pixel K-Buffer and Hierarchical
@@ -103,15 +112,15 @@ The `train.py` script takes a `.json` config file as the argument `--splatting_c
   },
   "culling_settings": 
   {
-    "rect_bounding": false,            // Bound Gaussians with a rectangle (instead fo square)
-    "tight_opacity_bounding": false,   // Bound Gaussians by considering their opacity value
-    "tile_based_culling": false,       /* Reject Tiles where Max Contribution is below thershold;
-                                            Recommended to be used together with Load Balancing*/
+    "rect_bounding": false,            // Bound 2D Gaussians with a rectangle (instead of a square)
+    "tight_opacity_bounding": false,   // Bound 2D Gaussians by considering their opacity value
+    "tile_based_culling": false,       /* Cull Tiles where the max. contribution is below the alpha threshold;
+                                          Recommended to be used together with Load Balancing*/
     "hierarchical_4x4_culling": false, // Used only for Hierarchical
   },
-  "load_balancing": false,      // Use load balancing for per-tile calculations (culling and depth) and duplication
+  "load_balancing": false,      // Use load balancing for per-tile calculations (culling, depth, and duplication)
   "proper_ewa_scaling": false,  /* Proper dilation of opacity, as proposed by Yu et al. ("Mip-Splatting");
-                                    Model also needs to be trained with this setting */
+                                   Model also needs to be trained with this setting */
 }
 ```
 These values can be overwritten through the command line. 
@@ -125,9 +134,9 @@ To train different example models (see the corresponding config files for the us
 # Our Hierarchical Rasterizer, as proposed in StopThePop
 python train.py --splatting_config configs/hierarchical.json -s <path to COLMAP or NeRF Synthetic dataset>
 # Vanilla 3DGS
-python train.py --splatting_config config/vanilla.json -s <path to COLMAP or NeRF Synthetic dataset>
+python train.py --splatting_config configs/vanilla.json -s <path to COLMAP or NeRF Synthetic dataset>
 # Per-Pixel K-Buffer Sort (Queue Size 16)
-python train.py --splatting_config config/kbuffer.json -s <path to COLMAP or NeRF Synthetic dataset>
+python train.py --splatting_config configs/kbuffer.json -s <path to COLMAP or NeRF Synthetic dataset>
 ```
 
 <details>
@@ -268,22 +277,14 @@ This script specifies the routine used in our evaluation and demonstrates the us
 If you have downloaded and extracted all the training data, you can run it like this:
 
 ```shell
-python full_eval.py -m360 <mipnerf360 folder> -tat <tanks and temples folder> -db <deep blending folder> -config <splatting config file>
+python full_eval.py -m360 <mipnerf360 folder> -tat <tanks and temples folder> -db <deep blending folder> --config <splatting config file>
 ```
 
 <details>
 <summary><span style="font-weight: bold;">New Command Line Arguments for full_eval.py</span></summary>
   
-  #### --sorted
-  Add this flag to use our sorted Gaussian Splatting implementation.
-  #### --per_tile_depth
-  Add this flag to enable per-tile depth computations.
-  #### --sort_window
-  Specifies the size of the sort window. If ```> 24```, we use our hierarchical renderer.
-  #### --opacity_decay
+  #### --opacity_decay (float)
   Train with Opacity Decay - this results in comparable image metrics with significantly fewer Gaussians. We used  ```--opacity_decay 0.9995``` for the reported results in our paper.
-  #### --skip_num_gaussians
-  Do not output the number of Gaussians.
 </details>
 <details>
 <summary><span style="font-weight: bold; opacity: 50%;">Original Command Line Arguments for full_eval.py</span></summary>
@@ -312,6 +313,7 @@ Please consider 3DGS's FAQ, contained in [their README](https://github.com/graph
 Following 3DGS, we provide interactive viewers for our method: remote and real-time. 
 Our viewing solutions are based on the [SIBR](https://sibr.gitlabpages.inria.fr/) framework, developed by the GRAPHDECO group for several novel-view synthesis projects.
 Our modified viewer contains additional debug modes, and options to disable several of our proposed optmizations.
+The settings on startup are based on the `config.json` file in the model directory (if it exists).
 The implementation is hosted [here](https://github.com/r4dl/SIBR_StopThePop).
 Hardware requirements and setup steps are identical to 3DGS, hence, refer to the [corresponding README](https://github.com/graphdeco-inria/gaussian-splatting/blob/main/README.md) for details.
 
@@ -326,11 +328,6 @@ Hardware requirements and setup steps are identical to 3DGS, hence, refer to the
 }</code></pre>
   </div>
 </section>
-
-### Modifications
-
-todo
-<br>
 
 ## Popping Detection
 Our popping detection method is a self-contained module, hosted [here](https://github.com/r4dl/PoppingDetection), and included as a submodule.

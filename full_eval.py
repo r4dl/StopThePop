@@ -39,9 +39,6 @@ if not args.skip_training or not args.skip_rendering:
     
     # additional cl-args for our method
     parser.add_argument("--opacity_decay", type=float, default=0)
-    parser.add_argument("--ewa_scaling", action="store_true")
-    parser.add_argument("--per_pixel", type=int, help="per-pixel queue size")
-    parser.add_argument("--tile_2x2", type=int, help="2x2 tile queue size")
     args = parser.parse_args()
 
 # create a unique name and arguments
@@ -50,15 +47,6 @@ custom_args = ""
 if args.opacity_decay > 0:
     name_args += f'_decay_{args.opacity_decay}'
     custom_args += f'--opacity_decay={args.opacity_decay} '
-if args.per_pixel is not None:
-    name_args += f'_ppx_{args.per_pixel}'
-    custom_args += f'--per_pixel {args.per_pixel} '
-if args.tile_2x2 is not None:
-    name_args += f'_2x2_{args.tile_2x2}'
-    custom_args += f'--tile_2x2 {args.tile_2x2} '
-if args.ewa_scaling > 0:
-    name_args += f'_ewa'
-    custom_args += f'--proper_ewa_scaling=True '
 
 if not args.skip_training:
     common_args = f"--splatting_config=\"{args.config}\" --quiet --eval --test_iterations -1 {custom_args}"
