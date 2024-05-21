@@ -13,9 +13,8 @@
 | [Full Paper](https://arxiv.org/abs/2402.00525) 
 | [Video](https://youtu.be/EmcXtHYhigk) 
 | [T&T+DB COLMAP (650MB)](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/datasets/input/tandt_db.zip) 
-<!-- | [Pre-trained Models (14 GB)](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/datasets/pretrained/models.zip)  -->
+| [Pre-trained Models (18.13 GB)](https://drive.google.com/file/d/1uk49LWsVjapLokTNHbTBMS8hMi3MuNDj/view?usp=sharing) 
 <br>
-<!-- TODO: add a gif as teaser, this does not look nice  -->
 
 ![Teaser image](assets/teaser.gif)
 
@@ -52,7 +51,7 @@ The project is split into submodules, each maintained in a separate github repos
 
 * [StopThePop-Rasterization](https://github.com/r4dl/StopThePop-Rasterization): A clone of the original [diff-gaussian-rasterization](https://github.com/graphdeco-inria/diff-gaussian-rasterization) that contains our CUDA hierarchical rasterizer implementation
 * [SIBR_StopThePop](https://github.com/r4dl/SIBR_StopThePop): A clone of the [SIBR Core](https://gitlab.inria.fr/sibr/sibr_core) project, containing an adapted viewer with our additional settings and functionalities
-* [PoppingDetection](https://github.com/r4dl/PoppingDetection): Self-contained module for our proposed popping detection metric
+* [PoppingDetection](https://github.com/r4dl/PoppingDetection): A self-contained module for our proposed popping detection metric
 
 ## Licensing
 
@@ -230,20 +229,32 @@ This way, you can render training/test sets and produce error metrics as follows
 
 ```shell
 python train.py -s <path to COLMAP or NeRF Synthetic dataset> --eval # Train with train/test split
-python render.py -m <path to trained model> # Generate renderings
+python render.py -m <path to trained model> # Generate renderings and gaussian count
 python metrics.py -m <path to trained model> # Compute error metrics on renderings
-python num_gaussians.py -m <path to trained model> # Output the number of Gaussians
 ```
+
+Our repository additionally permits rendering of Depth, visualized with the *Turbo* colormap.
+To render depth, run
+```shell
+python render.py -m <path to trained model> --render_depth
+```
+
+<details>
+<summary><span style="font-weight: bold;">New Command Line Arguments for render.py</span></summary>
+
+  #### --render_depth
+  Flag to enable depth rendering.
+  #### --skip_train
+  Flag to skip rendering the training set.
+  #### --skip_test
+  Flag to skip rendering the test set.
+</details>
 
 <details>
 <summary><span style="font-weight: bold; opacity: 50%;">Original Command Line Arguments for render.py</span></summary>
 
   #### --model_path / -m 
   Path to the trained model directory you want to create renderings for.
-  #### --skip_train
-  Flag to skip rendering the training set.
-  #### --skip_test
-  Flag to skip rendering the test set.
   #### --quiet 
   Flag to omit any text written to standard out pipe. 
 
@@ -309,6 +320,7 @@ python full_eval.py -m360 <mipnerf360 folder> -tat <tanks and temples folder> -d
 
 ### FAQ
 Please consider 3DGS's FAQ, contained in [their README](https://github.com/graphdeco-inria/gaussian-splatting/blob/main/README.md). In addition, several issues are also covered on [3DGS's issues page](https://github.com/graphdeco-inria/gaussian-splatting/issues).
+We will update this FAQ as issues arise.
 
 ## Interactive Viewers
 Following 3DGS, we provide interactive viewers for our method: remote and real-time. 
@@ -331,5 +343,5 @@ Hardware requirements and setup steps are identical to 3DGS, hence, refer to the
 </section>
 
 ## Popping Detection
-Our popping detection method is a self-contained module, hosted [here](https://github.com/r4dl/PoppingDetection), and included as a submodule.
+Our popping detection method is a self-contained module, hosted [here](https://github.com/r4dl/PoppingDetection), and is included as a submodule.
 For more information on how to run the method, consult the [submodules README](popping_detection/README.md).
