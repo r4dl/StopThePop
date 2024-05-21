@@ -1,21 +1,19 @@
-[
-    {
-        "culling_settings": {
-            "hierarchical_4x4_culling": false,
-            "rect_bounding": true,
-            "tight_opacity_bounding": true,
-            "tile_based_culling": false
+{
+    "culling_settings": {
+        "hierarchical_4x4_culling": false,
+        "rect_bounding": true,
+        "tight_opacity_bounding": true,
+        "tile_based_culling": false
+    },
+    "load_balancing": true,
+    "proper_ewa_scaling": false,
+    "sort_settings": {
+        "queue_sizes": {
+            "per_pixel": 16,
+            "tile_2x2": 0,
+            "tile_4x4": 0
         },
-        "load_balancing": true,
-        "proper_ewa_scaling": false,
-        "sort_settings": {
-            "queue_sizes": {
-                "per_pixel": 16,
-                "tile_2x2": 0,
-                "tile_4x4": 0
-            },
-            "sort_mode": 2,
-            "sort_order": 3
-        }
+        "sort_mode": 2,
+        "sort_order": 3
     }
-]
+}
