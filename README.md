@@ -60,6 +60,7 @@ The majority of the projects is licensed under the ["Gaussian-Splatting License"
 
 * [PoppingDetection](https://github.com/r4dl/PoppingDetection): MIT License
 * [StopThePop header files](submodules/diff-gaussian-rasterization/cuda_rasterizer/stopthepop): MIT License
+* [FLIP](utils/flip.py): BSD-3 license
 
 There are also several changes in the original source code.
 If you use any of our additional functionalities, please cite our paper and link to this repository.
