@@ -16,6 +16,7 @@ from tqdm import tqdm
 from os import makedirs
 from gaussian_renderer import render
 import torchvision
+import json
 from utils.general_utils import safe_state
 from argparse import ArgumentParser
 from arguments import ModelParams, PipelineParams, get_combined_args
@@ -49,6 +50,13 @@ def render_sets(dataset : ModelParams, iteration : int, pipeline : PipelineParam
 
         if not skip_test:
              render_set(dataset.model_path, "test", scene.loaded_iter, scene.getTestCameras(), gaussians, pipeline, background, splat_args, render_depth)
+        
+        # write number of gaussians too
+        num_gaussians = scene.gaussians.get_xyz.shape[0]
+        with open(os.path.join(dataset.model_path, "point_cloud", f'iteration_{scene.loaded_iter}', 'num_gaussians.json'), 'w') as fp:
+            json.dump(obj={
+                "num_gaussians": num_gaussians,
+            }, fp=fp, indent=2)
 
 if __name__ == "__main__":
     # Set up command line argument parser

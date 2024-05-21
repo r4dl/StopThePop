@@ -52,6 +52,7 @@ def evaluate(model_paths):
             per_view_dict_polytopeonly[scene_dir] = {}
 
             test_dir = Path(scene_dir) / "test"
+            pointcloud_dir = Path(scene_dir) / "point_cloud"
 
             for method in os.listdir(test_dir):
                 print("Method:", method)
@@ -62,7 +63,7 @@ def evaluate(model_paths):
                 per_view_dict_polytopeonly[scene_dir][method] = {}
 
                 method_dir = test_dir / method
-                gt_dir = method_dir/ "gt"
+                gt_dir = method_dir / "gt"
                 renders_dir = method_dir / "renders"
                 renders, gts, image_names = readImages(renders_dir, gt_dir)
 
@@ -76,17 +77,23 @@ def evaluate(model_paths):
                     psnrs.append(psnr(renders[idx], gts[idx]))
                     lpipss.append(lpips(renders[idx], gts[idx], net_type='vgg'))
                     flips.append(flip(renders[idx], gts[idx]).mean().item())
+                    
+                # load number of gaussians
+                with open(os.path.join(pointcloud_dir, f"iteration_{method.split('_')[-1]}", "num_gaussians.json"), 'r') as fp:
+                    num_gaussians = json.load(fp)["num_gaussians"]
 
                 print("  SSIM : {:>12.7f}".format(torch.tensor(ssims).mean(), ".5"))
                 print("  PSNR : {:>12.7f}".format(torch.tensor(psnrs).mean(), ".5"))
                 print("  LPIPS: {:>12.7f}".format(torch.tensor(lpipss).mean(), ".5"))
                 print("  FLIP : {:>12.7f}".format(torch.tensor(flips).mean(), ".5"))
+                print("  NUM  : {:>12}".format(num_gaussians))
                 print("")
 
                 full_dict[scene_dir][method].update({"SSIM": torch.tensor(ssims).mean().item(),
                                                         "PSNR": torch.tensor(psnrs).mean().item(),
                                                         "LPIPS": torch.tensor(lpipss).mean().item(),
-                                                        "FLIPS": torch.tensor(flips).mean().item()})
+                                                        "FLIPS": torch.tensor(flips).mean().item(),
+                                                        "NUM": num_gaussians})
                 per_view_dict[scene_dir][method].update({"SSIM": {name: ssim for ssim, name in zip(torch.tensor(ssims).tolist(), image_names)},
                                                             "PSNR": {name: psnr for psnr, name in zip(torch.tensor(psnrs).tolist(), image_names)},
                                                             "LPIPS": {name: lp for lp, name in zip(torch.tensor(lpipss).tolist(), image_names)},
