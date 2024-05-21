@@ -45,7 +45,15 @@ Abstract: *Gaussian Splatting has emerged as a prominent model for constructing 
 </section>
 
 ## Overview
-Our repository is built on [3D Gaussian Splatting](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/): For a full breakdown on how to get the code running, please consider [3DGS's Readme](https://github.com/graphdeco-inria/gaussian-splatting/blob/main/README.md).
+Our repository is built on [3D Gaussian Splatting](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/):
+For a full breakdown on how to get the code running, please consider [3DGS's Readme](https://github.com/graphdeco-inria/gaussian-splatting/blob/main/README.md).
+
+The project is split into submodules, each maintained in a separate github repository:
+
+* [StopThePop-Rasterization](https://github.com/r4dl/StopThePop-Rasterization): A clone of the original [diff-gaussian-rasterization](https://github.com/graphdeco-inria/diff-gaussian-rasterization) that contains our CUDA hierarchical rasterizer implementation
+* [SIBR_StopThePop](https://github.com/r4dl/SIBR_StopThePop): A clone of the [SIBR Core](https://gitlab.inria.fr/sibr/sibr_core) project, containing an adapted viewer with our additional settings and functionalities
+* [PoppingDetection](https://github.com/r4dl/PoppingDetection): Self-contained module for our proposed popping detection metric
+
 
 ## Cloning the Repository
 
@@ -77,59 +85,54 @@ The implementation includes 4 flavors of Gaussian Splatting:
   <li>Vanilla 3DGS</li>
 </ul>
 
-The `train.py` script takes a `.json` config file as input, which should contain the following information (this example is also the default `config.json`, if none is provided):
+The `train.py` script takes a `.json` config file as the argument `--splatting_config`, which should contain the following information (this example is also the default `config.json`, if none is provided):
 
 ```cpp
 {
-    "sort_settings": 
+  "sort_settings": 
+  {
+    "sort_mode": 0,      // Global (0), Per-Pixel Full (1), Per-Pixel K-Buffer (2), Hierarchical(3)
+    "sort_order": 0,     /* Viewspace Z-Depth (0), Worldspace Distance (1), 
+                            Per-Tile Depth at Tile Center (2), Per-Tile Depth at Max Contrib. Pos. (3) */
+    "queue_sizes": 
     {
-        "sort_mode": 0,      // Global (0), Per-Pixel Full (1), Per-Pixel K-Buffer (2), Hierarchical(3)
-        "sort_order": 0,     /* Viewspace Z-Depth (0), Worldspace Distance (1), 
-                                Per-Tile Depth at Tile Center (2), Per-Tile Depth at Max Contrib. Pos. (3) */
-        "queue_sizes": 
-        {
-            "per_pixel": 4,  // Used for: Per-Pixel K-Buffer and Hierarchical
-            "tile_2x2": 8,   // Used only for Hierarchical
-            "tile_4x4": 64   // Used only for Hierarchical
-        }
-    },
-    "culling_settings": 
-    {
-        "rect_bounding": false,            // Bound Gaussians with a rectangle (instead fo square)
-        "tight_opacity_bounding": false,   // Bound Gaussians by considering their opacity value
-        "tile_based_culling": false,       /* Reject Tiles where Max Contribution is below thershold;
-                                               Recommended to be used together with Load Balancing*/
-        "hierarchical_4x4_culling": false, // Used only for Hierarchical
-    },
-    "load_balancing": false,      // Use load balancing for per-tile calculations (culling and depth) and duplication
-    "proper_ewa_scaling": false,  /* Proper dilation of opacity, as proposed by Yu et al. ("Mip-Splatting");
-                                      Model also needs to be trained with this setting */
+      "per_pixel": 4,  // Used for: Per-Pixel K-Buffer and Hierarchical
+      "tile_2x2": 8,   // Used only for Hierarchical
+      "tile_4x4": 64   // Used only for Hierarchical
+    }
+  },
+  "culling_settings": 
+  {
+    "rect_bounding": false,            // Bound Gaussians with a rectangle (instead fo square)
+    "tight_opacity_bounding": false,   // Bound Gaussians by considering their opacity value
+    "tile_based_culling": false,       /* Reject Tiles where Max Contribution is below thershold;
+                                            Recommended to be used together with Load Balancing*/
+    "hierarchical_4x4_culling": false, // Used only for Hierarchical
+  },
+  "load_balancing": false,      // Use load balancing for per-tile calculations (culling and depth) and duplication
+  "proper_ewa_scaling": false,  /* Proper dilation of opacity, as proposed by Yu et al. ("Mip-Splatting");
+                                    Model also needs to be trained with this setting */
 }
 ```
-
-These values can be overwritten through the command line. Call `python train.py --help` to see all available options.
-At the start of training, the provided arguments will be written into the output directory. The `render.py` script uses the `config.json` in the model directory per default, with the option to overwrite through the command line.
+These values can be overwritten through the command line. 
+Call `python train.py --help` to see all available options.
+At the start of training, the provided arguments will be written into the output directory.
+The `render.py` script uses the `config.json` in the model directory per default, with the option to overwrite through the command line.
 
 To train different example models (see the corresponding config files for the used settings), run:
 
 ```shell
 # Our Hierarchical Rasterizer, as proposed in StopThePop
-python train.py config/stopthepop.json -s <path to COLMAP or NeRF Synthetic dataset>
-# Default 3DGS
-python train.py config/3dgs.json -s <path to COLMAP or NeRF Synthetic dataset>
-# Per-Pixel K-Buffer Sort
-python train.py config/kbuffer.json -s <path to COLMAP or NeRF Synthetic dataset>
+python train.py --splatting_config configs/hierarchical.json -s <path to COLMAP or NeRF Synthetic dataset>
+# Vanilla 3DGS
+python train.py --splatting_config config/vanilla.json -s <path to COLMAP or NeRF Synthetic dataset>
+# Per-Pixel K-Buffer Sort (Queue Size 16)
+python train.py --splatting_config config/kbuffer.json -s <path to COLMAP or NeRF Synthetic dataset>
 ```
 
 <details>
-<summary><span style="font-weight: bold;">New Command Line Arguments for train.py</span></summary>
+<summary><span style="font-weight: bold;">Additional New Command Line Arguments for train.py</span></summary>
 
-  #### --sorted
-  Add this flag to use our sorted Gaussian Splatting implementation.
-  #### --per_tile_depth
-  Add this flag to enable per-tile depth computations.
-  #### --sort_window
-  Specifies the size of the sort window. If ```> 24```, we use our hierarchical renderer.
   #### --opacity_decay
   Train with Opacity Decay - this results in comparable image metrics with significantly fewer Gaussians. We used  ```--opacity_decay 0.9995``` for the reported results in our paper.
 </details>
@@ -210,9 +213,11 @@ python train.py config/kbuffer.json -s <path to COLMAP or NeRF Synthetic dataset
 <br>
 
 ### Evaluation
+
 By default, the trained models use all available images in the dataset. 
 To train them while withholding a test set for evaluation, use the ```--eval``` flag. 
 This way, you can render training/test sets and produce error metrics as follows:
+
 ```shell
 python train.py -s <path to COLMAP or NeRF Synthetic dataset> --eval # Train with train/test split
 python render.py -m <path to trained model> # Generate renderings
@@ -220,17 +225,6 @@ python metrics.py -m <path to trained model> # Compute error metrics on renderin
 python num_gaussians.py -m <path to trained model> # Output the number of Gaussians
 ```
 
-<details>
-<summary><span style="font-weight: bold;">New Command Line Arguments for render.py</span></summary>
-
-  #### --sorted
-  Add this flag to use our sorted Gaussian Splatting implementation.
-  #### --per_tile_depth
-  Add this flag to enable per-tile depth computations.
-  #### --sort_window
-  Specifies the size of the sort window. If ```> 24```, we use our hierarchical renderer.
-
-</details>
 <details>
 <summary><span style="font-weight: bold; opacity: 50%;">Original Command Line Arguments for render.py</span></summary>
 
@@ -259,7 +253,6 @@ python num_gaussians.py -m <path to trained model> # Output the number of Gaussi
   Flag to make pipeline render with computed SHs from PyTorch instead of ours.
   #### --compute_cov3D_python
   Flag to make pipeline render with computed 3D covariance from PyTorch instead of ours.
-
 </details>
 
 <details>
@@ -270,9 +263,12 @@ python num_gaussians.py -m <path to trained model> # Output the number of Gaussi
 </details>
 <br>
 
-We further provide the ```full_eval.py``` script. This script specifies the routine used in our evaluation and demonstrates the use of some additional parameters, e.g., ```--images (-i)``` to define alternative image directories within COLMAP data sets. If you have downloaded and extracted all the training data, you can run it like this:
+We further provide the ```full_eval.py``` script.
+This script specifies the routine used in our evaluation and demonstrates the use of some additional parameters, e.g., ```--images (-i)``` to define alternative image directories within COLMAP data sets.
+If you have downloaded and extracted all the training data, you can run it like this:
+
 ```shell
-python full_eval.py -m360 <mipnerf360 folder> -tat <tanks and temples folder> -db <deep blending folder>
+python full_eval.py -m360 <mipnerf360 folder> -tat <tanks and temples folder> -db <deep blending folder> -config <splatting config file>
 ```
 
 <details>
