@@ -434,6 +434,40 @@ The settings on startup are based on the `config.json` file in the model directo
 The implementation is hosted [here](https://github.com/r4dl/SIBR_StopThePop).
 Hardware requirements and setup steps are identical to 3DGS, hence, refer to the [corresponding README](https://github.com/graphdeco-inria/gaussian-splatting/blob/main/README.md) for details.
 
+### Quick Setup: Installation from Source
+If you cloned with submodules (e.g., using ```--recursive```), the source code for the viewers is found in ```SIBR_viewers```.
+
+#### Windows
+CMake should take care of your dependencies.
+```shell
+cd SIBR_viewers
+cmake -Bbuild .
+cmake --build build --target install --config RelWithDebInfo
+```
+You may specify a different configuration, e.g. ```Debug``` if you need more control during development.
+
+#### Ubuntu 22.04
+You will need to install a few dependencies before running the project setup.
+```shell
+# Dependencies
+sudo apt install -y libglew-dev libassimp-dev libboost-all-dev libgtk-3-dev libopencv-dev libglfw3-dev libavdevice-dev libavcodec-dev libeigen3-dev libxxf86vm-dev libembree-dev
+# Project setup
+cd SIBR_viewers
+cmake -Bbuild . -DCMAKE_BUILD_TYPE=Release # add -G Ninja to build faster
+cmake --build build -j24 --target install
+``` 
+
+#### STOPTHEPOP_FASTBUILD
+For performance reasons, we use templates for several of our options, causing very long compile times for our submodule and SIBR.
+Hence, we provide a ```STOPTHEPOP_FASTBUILD``` option in [```rasterizer.h```](submodules/diff-gaussian-rasterization/cuda_rasterizer/rasterizer.h).
+Simply uncomment 
+```cpp
+// #define STOPTHEPOP_FASTBUILD
+``` 
+This solely compiles the default options for our method, which should be sufficient.
+If you further want to reduce the compile time, simply specify the exact ```CUDA_ARCHITECTURE``` in the [```CMakeLists.txt```](submodules/diff-gaussian-rasterization/CMakeLists.txt).
+For ```SIBR```, the corresponding ```CMakeLists.txt``` is located [```here```](SIBR_viewers/extlibs/CudaRasterizer/CudaRasterizer/CMakeLists.txt).
+
 <section class="section" id="BibTeX">
   <div class="container is-max-desktop content">
     <h3 class="title">BibTeX</h2>
