@@ -13,7 +13,6 @@ dependencies:
   - torchvision=0.13.1
   - tqdm
   - dacite
-  - typing_inspect
   - pip:
     - submodules/diff-gaussian-rasterization
     - submodules/simple-knn

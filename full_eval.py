@@ -35,32 +35,26 @@ if not args.skip_training or not args.skip_rendering:
     parser.add_argument("--tanksandtemples", "-tat", required=True, type=str)
     parser.add_argument("--deepblending", "-db", required=True, type=str)
     parser.add_argument('--config', required=True, type=str)
-    
-    # additional cl-args for our method
     parser.add_argument("--opacity_decay", type=float, default=0)
     args = parser.parse_args()
 
-# create a unique name and arguments
-name_args = ''
-custom_args = ""
-if args.opacity_decay > 0:
-    name_args += f'_decay_{args.opacity_decay}'
-    custom_args += f'--opacity_decay={args.opacity_decay} '
-
 if not args.skip_training:
-    common_args = f"--splatting_config=\"{args.config}\" --quiet --eval --test_iterations -1 {custom_args}"
+    common_args = f"--splatting_config=\"{args.config}\" --quiet --eval --test_iterations -1"
+    if args.opacity_decay > 0:
+        common_args += f' --opacity_decay={args.opacity_decay} ' 
+    print(common_args)
     for scene in mipnerf360_outdoor_scenes:
         source = args.mipnerf360 + "/" + scene
-        os.system(f"python train.py -s {source} -i images_4 -m {args.output_path}/{ scene}{name_args} {common_args}")
+        os.system(f"python train.py -s {source} -i images_4 -m {args.output_path}/{scene} {common_args}")
     for scene in mipnerf360_indoor_scenes:
         source = args.mipnerf360 + "/" + scene
-        os.system(f"python train.py -s {source} -i images_2 -m {args.output_path}/{ scene}{name_args} {common_args}")
+        os.system(f"python train.py -s {source} -i images_2 -m {args.output_path}/{scene} {common_args}")
     for scene in tanks_and_temples_scenes:
         source = args.tanksandtemples + "/" + scene
-        os.system(f"python train.py -s {source} -m {args.output_path}/{ scene}{name_args} {common_args}")
+        os.system(f"python train.py -s {source} -m {args.output_path}/{scene} {common_args}")
     for scene in deep_blending_scenes:
         source = args.deepblending + "/" + scene
-        os.system(f"python train.py -s {source} -m {args.output_path}/{ scene}{name_args} {common_args}")
+        os.system(f"python train.py -s {source} -m {args.output_path}/{scene} {common_args}")
 
 if not args.skip_rendering:
     all_sources = []
@@ -73,13 +67,13 @@ if not args.skip_rendering:
     for scene in deep_blending_scenes:
         all_sources.append(args.deepblending + "/" + scene)
 
-    common_args = " --quiet --eval --skip_train" + custom_args
+    common_args = " --quiet --eval --skip_train"
     for scene, source in zip(all_scenes, all_sources):
         for it in [7000, 30000]:
-            os.system(f"python render.py --iteration {it} -s {source} -m {args.output_path}/{ scene}{name_args} {common_args}")
+            os.system(f"python render.py --iteration {it} -s {source} -m {args.output_path}/{scene} {common_args}")
 
 if not args.skip_metrics:
     for scene in all_scenes:
         scenes_string = "\"" + args.output_path + "/" + scene + "\""
 
-        os.system("python metrics.py -m " + scenes_string + name_args)
+        os.system("python metrics.py -m " + scenes_string)

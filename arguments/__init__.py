@@ -14,8 +14,6 @@ from diff_gaussian_rasterization import ExtendedSettings, GlobalSortOrder, SortM
 import json
 import sys
 import os
-from typing import Any, Dict, Type
-from typing_inspect import get_args, get_generic_bases, is_generic_type, is_union_type
 
 class GroupParams:
     pass
@@ -71,28 +69,6 @@ class PipelineParams(ParamGroup):
         self.compute_cov3D_python = False
         self.debug = False
         super().__init__(parser, "Pipeline Parameters")
-
-Json = Dict[str, Any]
-def json_decoder(nt: ExtendedSettings, data: Dict[str, Any]) -> Dict:
-    decoded = {}
-    field_types = nt._field_types
-    for key in field_types:
-        value = data.get(key)
-        if value is None:
-            possible_types = get_args(field_types[key])
-            if len(possible_types) < 2 or type(None) not in possible_types:  # confirm the field is optional
-                raise ValueError(
-                    "Error decoding Json for {nt}. key '{key}' was 'None' but not listed as optional field.".format(
-                        nt=nt, key=key))
-        else:
-            field_type = field_types[key]
-            if is_generic_type(field_type):
-                field_type = get_generic_bases(field_type)[0]
-            elif is_union_type(field_type):
-                field_type = get_args(field_types[key])[0]
-            value = field_type(value)
-        decoded[key] = value
-    return decoded
 
 class SplattingSettings():
     
