@@ -465,9 +465,9 @@ If you further want to reduce the compile time, simply specify the exact ```CUDA
 For ```SIBR```, the corresponding ```CMakeLists.txt``` is located [```here```](SIBR_viewers/extlibs/CudaRasterizer/CudaRasterizer/CMakeLists.txt).
 
 ## Running the Real-Time Viewer
-<video width="99%" controls>
-  <source src="assets/real-time-viewer-demo.mp4" type="video/mp4">
-</video>
+https://github.com/r4dl/StopThePop/assets/45897040/5e763600-c0d9-4055-b664-0b9ea342a248
+
+
 
 <section class="section" id="BibTeX">
   <div class="container is-max-desktop content">
