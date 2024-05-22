@@ -467,6 +467,10 @@ For ```SIBR```, the corresponding ```CMakeLists.txt``` is located [```here```](S
 ## Running the Real-Time Viewer
 https://github.com/r4dl/StopThePop/assets/45897040/5e763600-c0d9-4055-b664-0b9ea342a248
 
+<video width="99%" controls>
+  <source src="assets/real-time-viewer-demo.mp4" type="video/mp4">
+</video>
+
 
 
 <section class="section" id="BibTeX">
