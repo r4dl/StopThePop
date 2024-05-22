@@ -21,9 +21,9 @@
 This repository contains the official authors implementation associated with the paper "StopThePop: Sorted Gaussian Splatting for View-Consistent Real-time Rendering", which can be found [here](https://r4dl.github.io/StopThePop). 
 <!-- We further provide the reference images used to create the error metrics reported in the paper, as well as recently created, pre-trained models.  -->
 
-<a href="https://www.inria.fr/"><img height="100" src="assets/tugraz-logo.jpg"> </a>
-<a href="https://univ-cotedazur.eu/"><img height="100" src="assets/huawei-logo.jpg"> </a>
-<a href="https://www.mpi-inf.mpg.de"><img height="100" src="assets/tuwien_logo.jpg"> </a>
+<a href="https://www.tugraz.at/en/home"><img height="100" src="assets/tugraz-logo.jpg"> </a>
+<img height="100" src="assets/huawei-logo.jpg">
+<a href="https://www.tuwien.at/en/"><img height="100" src="assets/tuwien_logo.jpg"> </a>
 
 Abstract: *Gaussian Splatting has emerged as a prominent model for constructing 3D representations from images across diverse domains. However, the efficiency of the 3D Gaussian Splatting rendering pipeline relies on several simplifications. Notably, reducing Gaussian to 2D splats with a single view-space depth introduces popping and blending artifacts during view rotation. Addressing this issue requires accurate per-pixel depth computation, yet a full per-pixel sort proves excessively costly compared to a global sort operation. In this paper, we present a novel hierarchical rasterization approach that systematically resorts and culls splats with minimal processing overhead. Our software rasterizer <b>effectively eliminates popping artifacts and view inconsistencies</b>, as demonstrated through both quantitative and qualitative measurements. Simultaneously, our method mitigates the potential for cheating view-dependent effects with popping, ensuring a more authentic representation. Despite the elimination of cheating, our approach achieves comparable quantitative results for test images, while increasing the consistency for novel view synthesis in motion. Due to its design, our hierarchical approach is <b>only 4% slower</b> on average than the original Gaussian Splatting. Notably, enforcing consistency enables a reduction in the number of Gaussians by approximately half with nearly identical quality and view-consistency. Consequently, rendering performance is nearly doubled, making our approach 1.6x faster than the original Gaussian Splatting, with a 50% reduction in memory requirements.*
 
@@ -239,6 +239,9 @@ To render depth, run
 python render.py -m <path to trained model> --render_depth
 ```
 
+<a href="https://www.inria.fr/"><img width="49%" src="assets/00008.png"> </a>
+<a href="https://univ-cotedazur.eu/"><img width="49%" src="assets/00007.png"> </a>
+
 <details>
 <summary><span style="font-weight: bold;">New Command Line Arguments for render.py</span></summary>
 
@@ -292,6 +295,82 @@ If you have downloaded and extracted all the training data, you can run it like 
 python full_eval.py -m360 <mipnerf360 folder> -tat <tanks and temples folder> -db <deep blending folder> --config <splatting config file>
 ```
 
+#### Pre-Trained Models
+If you want to evaluate our [pre-trained models](https://drive.google.com/file/d/1uk49LWsVjapLokTNHbTBMS8hMi3MuNDj/view?usp=sharing), you have to download the source datsets and indicate their location to ```render.py```, just as done here:
+```shell
+python render.py -m <path to pre-trained model> -s <path to COLMAP dataset>
+```
+Alternatively, you can modify the ```source_path``` with the ```cfg_args```-file and manually insert the correct path. 
+
+> **Note:** We included our models for StopThePop and 3DGS, which were used in our evaluation: to minimize file size, we only include the final checkpoint. We also include the final, rendered images, hence you can reproduce our results easily.
+
+<table>
+  <tr>
+  <td></td>
+    <td colspan="4">Deep Blending</td>
+    <td colspan="4">Mip-NeRF 360 Indoor</td>
+    <td colspan="4">Mip-NeRF 360 Outdoor</td>
+    <td colspan="4">Tanks & Temples</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>PSNR</td>
+    <td>SSIM</td>
+    <td>LPIPS</td>
+    <td>&#xA7FB;LIP</td>
+      <td>PSNR</td>
+    <td>SSIM</td>
+    <td>LPIPS</td>
+    <td>&#xA7FB;LIP</td>
+      <td>PSNR</td>
+    <td>SSIM</td>
+    <td>LPIPS</td>
+    <td>&#xA7FB;LIP</td>
+      <td>PSNR</td>
+    <td>SSIM</td>
+    <td>LPIPS</td>
+    <td>&#xA7FB;LIP</td>
+  </tr>
+      <td>Ours</td>  
+      <td>29.86</td> 
+      <td>0.904</td> 
+      <td>0.234</td>  
+      <td>0.127</td>  
+      <td>30.62</td>  
+      <td>0.921</td>  
+      <td>0.186</td>  
+      <td>0.099</td>  
+      <td>24.60</td>  
+      <td>0.728</td>  
+      <td>0.235</td>  
+      <td>0.167</td>  
+      <td>23.21</td>  
+      <td>0.843</td>  
+      <td>0.173</td>  
+      <td>0.216</td> 
+    <tr>
+      <td>3DGS</td>  
+      <td>29.46 </td>
+      <td>0.900</td>
+      <td>0.247 </td>
+      <td>0.131 </td>
+      <td>30.98 </td>
+      <td>0.922 </td>
+      <td>0.189 </td>
+      <td>0.094 </td>
+      <td>24.59 </td>
+      <td>0.727 </td>
+      <td>0.240 </td>
+      <td>0.167 </td>
+      <td>23.71 </td>
+      <td>0.845 </td>
+      <td>0.178 </td>
+      <td>0.199</td>
+    </tr>
+</table>
+
+[Download Results](https://drive.google.com/file/d/1uk49LWsVjapLokTNHbTBMS8hMi3MuNDj/view?usp=sharing)
+
 <details>
 <summary><span style="font-weight: bold;">New Command Line Arguments for full_eval.py</span></summary>
   
@@ -343,5 +422,7 @@ Hardware requirements and setup steps are identical to 3DGS, hence, refer to the
 </section>
 
 ## Popping Detection
-Our popping detection method is a self-contained module, hosted [here](https://github.com/r4dl/PoppingDetection), and is included as a submodule.
+Our popping detection method is a self-contained module, hosted [here](https://github.com/r4dl/PoppingDetection), and is included as a submodule.<br>
 For more information on how to run the method, consult the [submodules README](popping_detection/README.md).
+
+![Teaser image](assets/teaser_flip.gif)
