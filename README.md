@@ -87,12 +87,36 @@ conda activate stopthepop
 ### Running
 
 The implementation includes 4 flavors of Gaussian Splatting:
-<ul>
-  <li>Ours: <strong>Hierarchically Sorted Rasterizer</strong> (recommended)</li>
-  <li>Ours: Per-pixel Approximate Sort (k-Buffer)</li>
-  <li>Ours: Per-pixel Full Sort (only forward pass supported; no optimization) </li>
-  <li>Vanilla 3DGS</li>
-</ul>
+
+<table>
+<tr>
+  <td></td>
+  <td>Fast</td>
+  <td>View-Consistent</td>
+</tr>
+<tr>
+  <td>3DGS</td>
+  <td>&#x2705;</td>
+  <td>&#x274C;</td>
+</tr>
+<tr>
+  <td>Full Sort</td>
+  <td>&#x1F422;</td>
+  <td>&#x2705;</td>
+</tr>
+<tr>
+  <td>KBuffer</td>
+  <td>&#x2705;</td>
+  <td>&#x2705;</td>
+</tr>
+<tr>
+  <td><strong>Ours (recommended)</strong></td>
+  <td>&#x2705;</td>
+  <td>&#x2705;</td>
+</tr>
+</table>
+
+> **Note:** Our hierarchical rasterizer is both faster and more-view consistent compared to the naïve KBuffer method.
 
 The `train.py` script takes a `.json` config file as the argument `--splatting_config`, which should contain the following information (this example is also the default `config.json`, if none is provided):
 
