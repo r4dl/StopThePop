@@ -42,7 +42,6 @@ if not args.skip_training:
     common_args = f"--splatting_config=\"{args.config}\" --quiet --eval --test_iterations -1"
     if args.opacity_decay > 0:
         common_args += f' --opacity_decay={args.opacity_decay} ' 
-    print(common_args)
     for scene in mipnerf360_outdoor_scenes:
         source = args.mipnerf360 + "/" + scene
         os.system(f"python train.py -s {source} -i images_4 -m {args.output_path}/{scene} {common_args}")
