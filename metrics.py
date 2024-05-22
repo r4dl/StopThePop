@@ -15,7 +15,7 @@ from PIL import Image
 import torch
 import torchvision.transforms.functional as tf
 from utils.loss_utils import ssim
-from lpipsPyTorch import lpips
+from lpipsPyTorch import LPIPSEval
 import json
 from tqdm import tqdm
 from utils.image_utils import psnr
@@ -42,6 +42,7 @@ def evaluate(model_paths):
     per_view_dict_polytopeonly = {}
     print("")
     flip = LDRFLIPLoss()
+    lpips = LPIPSEval(net_type='vgg', device='cuda')
 
     for scene_dir in model_paths:
         try:
@@ -75,7 +76,7 @@ def evaluate(model_paths):
                 for idx in tqdm(range(len(renders)), desc="Metric evaluation progress"):
                     ssims.append(ssim(renders[idx], gts[idx]))
                     psnrs.append(psnr(renders[idx], gts[idx]))
-                    lpipss.append(lpips(renders[idx], gts[idx], net_type='vgg'))
+                    lpipss.append(lpips.criterion(renders[idx], gts[idx]))
                     flips.append(flip(renders[idx], gts[idx]).mean().item())
                     
                 # load number of gaussians
