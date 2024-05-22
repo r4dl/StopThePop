@@ -82,7 +82,7 @@ SET DISTUTILS_USE_SDK=1 # Windows only
 conda env create --file environment.yml
 conda activate stopthepop
 ```
-This process assumes that you have CUDA SDK **11** installed, not **12**.
+> **Note:** This process assumes that you have CUDA SDK **11** installed, not **12**.
 
 ### Running
 
@@ -332,10 +332,10 @@ Alternatively, you can modify the ```source_path``` with the ```cfg_args```-file
 <table>
   <tr>
   <td></td>
-    <td colspan="4">Deep Blending</td>
-    <td colspan="4">Mip-NeRF 360 Indoor</td>
-    <td colspan="4">Mip-NeRF 360 Outdoor</td>
-    <td colspan="4">Tanks & Temples</td>
+    <td colspan="4" style="text-align: center">Deep Blending</td>
+    <td colspan="4" style="text-align: center">Mip-NeRF 360 Indoor</td>
+    <td colspan="4" style="text-align: center">Mip-NeRF 360 Outdoor</td>
+    <td colspan="4" style="text-align: center">Tanks & Temples</td>
   </tr>
   <tr>
     <td></td>
@@ -422,6 +422,70 @@ Alternatively, you can modify the ```source_path``` with the ```cfg_args```-file
 </details>
 <br>
 
+## Performance
+
+Our proposed optimization imply a significant performance improvement, even for vanilla 3DGS. 
+Here is a framerate comparison for two exemplary scenes in Full HD resolution, run on an NVIDIA RTX 4090 with CUDA 11.8.
+
+<table>
+  <tr>
+  <td></td>
+  <td colspan="2" style="text-align: center">Bicycle</td>
+  <td colspan="2" style="text-align: center">Train</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>3DGS</td>
+    <td>Ours</td>    
+    <td>3DGS</td>
+    <td>Ours</td>
+  </tr>
+  <tr>
+    <td>Vanilla</td>
+    <td>90</td>
+    <td>20</td>
+    <td>159</td>
+    <td>43</td>
+  </tr>
+  <tr>
+    <td>w/ Rect Culling</td>
+    <td>168</td>
+    <td>42</td>
+    <td>277</td>
+    <td>81</td>
+  </tr>
+  <tr>
+    <td>w/ Opacity Culling</td>
+    <td>205</td>
+    <td>54</td>
+    <td>341</td>
+    <td>97</td>
+  </tr>
+  <tr>
+    <td>w/ Load Balancing</td>
+    <td>216</td>
+    <td>61</td>
+    <td>360</td>
+    <td>120</td>
+  </tr>
+  <tr>
+    <td>w/ Tile-based Culling</td>
+    <td>240</td>
+    <td>76</td>
+    <td>425</td>
+    <td>145</td>
+  </tr>
+  <tr>
+    <td>w/ 4x4 Tile Culling</td>
+    <td>-</td>
+    <td>119</td>
+    <td>-</td>
+    <td>213</td>
+  </tr>
+</table>
+
+> **Note:** For 3DGS, 4x4 Tile Culling is not an option.
+
 ## Interactive Viewers
 Following 3DGS, we provide interactive viewers for our method: remote and real-time. 
 Our viewing solutions are based on the [SIBR](https://sibr.gitlabpages.inria.fr/) framework, developed by the GRAPHDECO group for several novel-view synthesis projects.
@@ -462,7 +526,7 @@ Simply uncomment
 ``` 
 This solely compiles the default options for our method, which should be sufficient.
 If you further want to reduce the compile time, simply specify the exact ```CUDA_ARCHITECTURE``` in the [```CMakeLists.txt```](submodules/diff-gaussian-rasterization/CMakeLists.txt).
-For ```SIBR```, the corresponding ```CMakeLists.txt``` is located [```here```](SIBR_viewers/extlibs/CudaRasterizer/CudaRasterizer/CMakeLists.txt).
+For ```SIBR```, the corresponding ```CMakeLists.txt``` is located in [```SIBR_viewers/extlibs/CudaRasterizer/CudaRasterizer/CMakeLists.txt```](SIBR_viewers/extlibs/CudaRasterizer/CudaRasterizer/CMakeLists.txt).
 
 ## Running the Real-Time Viewer
 https://github.com/r4dl/StopThePop/assets/45897040/5e763600-c0d9-4055-b664-0b9ea342a248
