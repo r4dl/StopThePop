@@ -86,7 +86,7 @@ conda activate stopthepop
 
 ### Running
 
-The implementation includes 4 flavors of Gaussian Splatting:
+Our implementation includes 4 flavors of Gaussian Splatting:
 
 <table>
 <tr>
@@ -116,7 +116,7 @@ The implementation includes 4 flavors of Gaussian Splatting:
 </tr>
 </table>
 
-> **Note:** Our hierarchical rasterizer is both faster and more-view consistent compared to the naïve KBuffer method.
+> **Note:** Our hierarchical rasterizer is both faster and more view-consistent compared to the naïve KBuffer method.
 
 The `train.py` script takes a `.json` config file as the argument `--splatting_config`, which should contain the following information (this example is also the default `config.json`, if none is provided):
 
