@@ -422,10 +422,6 @@ Alternatively, you can modify the ```source_path``` with the ```cfg_args```-file
 </details>
 <br>
 
-### FAQ
-Please consider 3DGS's FAQ, contained in [their README](https://github.com/graphdeco-inria/gaussian-splatting/blob/main/README.md). In addition, several issues are also covered on [3DGS's issues page](https://github.com/graphdeco-inria/gaussian-splatting/issues).
-We will update this FAQ as issues arise.
-
 ## Interactive Viewers
 Following 3DGS, we provide interactive viewers for our method: remote and real-time. 
 Our viewing solutions are based on the [SIBR](https://sibr.gitlabpages.inria.fr/) framework, developed by the GRAPHDECO group for several novel-view synthesis projects.
@@ -468,6 +464,11 @@ This solely compiles the default options for our method, which should be suffici
 If you further want to reduce the compile time, simply specify the exact ```CUDA_ARCHITECTURE``` in the [```CMakeLists.txt```](submodules/diff-gaussian-rasterization/CMakeLists.txt).
 For ```SIBR```, the corresponding ```CMakeLists.txt``` is located [```here```](SIBR_viewers/extlibs/CudaRasterizer/CudaRasterizer/CMakeLists.txt).
 
+## Running the Real-Time Viewer
+<video width="99%" controls>
+  <source src="assets/real-time-viewer-demo.mp4" type="video/mp4">
+</video>
+
 <section class="section" id="BibTeX">
   <div class="container is-max-desktop content">
     <h3 class="title">BibTeX</h2>
@@ -485,3 +486,7 @@ Our popping detection method is a self-contained module, hosted [here](https://g
 For more information on how to run the method, consult the [submodules README](popping_detection/README.md).
 
 ![Teaser image](assets/teaser_flip.gif)
+
+## FAQ
+Please consider 3DGS's FAQ, contained in [their README](https://github.com/graphdeco-inria/gaussian-splatting/blob/main/README.md). In addition, several issues are also covered on [3DGS's issues page](https://github.com/graphdeco-inria/gaussian-splatting/issues).
+We will update this FAQ as issues arise.
