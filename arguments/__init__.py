@@ -141,6 +141,8 @@ class SplattingSettings():
             for arg in vars(arguments).items():
                 if any([arg[0] in z.option_strings[0] for z in self.group_config._group_actions]):
                     # json passed, load it
+                    if arg[1] is None:
+                        continue
                     with open(arg[1], 'r') as json_file:
                         config = json.load(json_file)
                         self.settings = ExtendedSettings.from_dict(config)
