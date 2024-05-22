@@ -489,7 +489,7 @@ Here is a framerate comparison for two exemplary scenes in Full HD resolution, r
 ## Interactive Viewers
 Following 3DGS, we provide interactive viewers for our method: remote and real-time. 
 Our viewing solutions are based on the [SIBR](https://sibr.gitlabpages.inria.fr/) framework, developed by the GRAPHDECO group for several novel-view synthesis projects.
-Our modified viewer contains additional debug modes, and options to disable several of our proposed optmizations.
+Our modified viewer contains additional debug modes, and options to disable several of our proposed optimizations.
 The settings on startup are based on the `config.json` file in the model directory (if it exists).
 The implementation is hosted [here](https://github.com/r4dl/SIBR_StopThePop).
 Hardware requirements and setup steps are identical to 3DGS, hence, refer to the [corresponding README](https://github.com/graphdeco-inria/gaussian-splatting/blob/main/README.md) for details.
