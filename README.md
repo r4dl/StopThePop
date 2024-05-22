@@ -100,7 +100,7 @@ The `train.py` script takes a `.json` config file as the argument `--splatting_c
 {
   "sort_settings": 
   {
-    "sort_mode": 0,    // Global (0), Per-Pixel Full (1), Per-Pixel K-Buffer (2), Hierarchical(3)
+    "sort_mode": 0,    // Global (0), Per-Pixel Full (1), Per-Pixel K-Buffer (2), Hierarchical (3)
     "sort_order": 0,   /* Viewspace Z-Depth (0), Worldspace Distance (1), 
                           Per-Tile Depth at Tile Center (2), Per-Tile Depth at Max Contrib. Pos. (3) */
     "queue_sizes": 
@@ -140,10 +140,35 @@ python train.py --splatting_config configs/kbuffer.json -s <path to COLMAP or Ne
 ```
 
 <details>
-<summary><span style="font-weight: bold;">Additional New Command Line Arguments for train.py</span></summary>
+<summary><span style="font-weight: bold;">Additional Command Line Arguments for train.py</span></summary>
 
   #### --opacity_decay
   Train with Opacity Decay - this results in comparable image metrics with significantly fewer Gaussians. We used  ```--opacity_decay 0.9995``` for the reported results in our paper.
+  #### --splatting_config
+  Full config to specify the flavor of Gaussian Splatting. See ```configs/``` for pre-defined configs.
+  #### --sort_mode
+  Specify Sort Mode - must be one of ```{GLOBAL,PPX_FULL,PPX_KBUFFER,HIER}```
+  #### --sort_order 
+  Specify Sort Order - must be one of ```{Z_DEPTH,DISTANCE,PTD_CENTER,PTD_MAX}```
+  #### --tile_4x4     
+  Specify size of 4x4 tile queue - only needed if using sort_mode ```HIER```, only ```64``` supported.
+  #### --tile_2x2 
+  Specify size of 2x2 tile queue - only needed if using sort_mode ```HIER```, only ```{8,12,20}``` supported.
+  #### --per_pixel {1,2,4,8,12,16,20,24}
+  Specify size of per-pixel queue: If using sort_mode ```HIER```, only ```{4,8,16}``` supported. If using sort_mode ```KBUFFER```, all values are supported.
+  #### --rect_bounding 
+  Bound 2D Gaussians with a rectangle instead of a circle - must be one of ```{True,False}```
+  #### --tight_opacity_bounding 
+  Bound 2D Gaussians by considering their opacity - must be one of ```{True,False}```
+  #### --tile_based_culling 
+  Cull complete tiles based on opacity - must be one of ```{True,False}``` (recommended with Load Balancing)
+  #### --hierarchical_4x4_culling 
+  Cull Gaussians for 4x4 subtiles - must be one of ```{True,False}```, only when using sort_mode ```HIER```
+  #### --load_balancing {True,False}
+  Perform per-tile computations cooperatively (e.g. duplication) -  must be one of ```{True,False}```
+  #### --proper_ewa_scaling 
+  Dilation of 2D Gaussians as proposed by Yu et al. ("Mip-Splatting") -  must be one of ```{True,False}```
+
 </details>
 <details>
   <summary><span style="font-weight: bold; opacity: 50%;">Original Command Line Arguments for train.py</span></summary>
