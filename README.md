@@ -164,7 +164,7 @@ python train.py --splatting_config configs/kbuffer.json -s <path to COLMAP or Ne
 ```
 
 <details>
-<summary><span style="font-weight: bold;">Additional Command Line Arguments for train.py</span></summary>
+<summary><span style="font-weight: bold;">New Command Line Arguments for train.py</span></summary>
 
   #### --opacity_decay
   Train with Opacity Decay - this results in comparable image metrics with significantly fewer Gaussians. We used  ```--opacity_decay 0.9995``` for the reported results in our paper.
@@ -543,14 +543,14 @@ cmake --build build -j24 --target install
 
 #### STOPTHEPOP_FASTBUILD
 For performance reasons, we use templates for several of our options, causing very long compile times for our submodule and SIBR.
-Hence, we provide a ```STOPTHEPOP_FASTBUILD``` option in [```rasterizer.h```](submodules/diff-gaussian-rasterization/cuda_rasterizer/rasterizer.h).
+Hence, we provide a ```STOPTHEPOP_FASTBUILD``` option in [```submodules/diff-gaussian-rasterization/cuda_rasterizer/rasterizer.h```](submodules/diff-gaussian-rasterization/cuda_rasterizer/rasterizer.h).
 Simply uncomment 
 ```cpp
 // #define STOPTHEPOP_FASTBUILD
 ``` 
 This solely compiles the default options for our method, which should be sufficient.
-If you further want to reduce the compile time, simply specify the exact ```CUDA_ARCHITECTURE``` in the [```CMakeLists.txt```](submodules/diff-gaussian-rasterization/CMakeLists.txt).
-For ```SIBR```, the corresponding ```CMakeLists.txt``` is located in [```SIBR_viewers/extlibs/CudaRasterizer/CudaRasterizer/CMakeLists.txt```](SIBR_viewers/extlibs/CudaRasterizer/CudaRasterizer/CMakeLists.txt).
+If you further want to reduce the compile time, simply specify the exact ```CUDA_ARCHITECTURE``` in the [```submodules/diff-gaussian-rasterization/CMakeLists.txt```](submodules/diff-gaussian-rasterization/CMakeLists.txt).
+> **Note:** For ```SIBR```, the corresponding ```CMakeLists.txt``` is located in [```SIBR_viewers/extlibs/CudaRasterizer/CudaRasterizer/CMakeLists.txt```](SIBR_viewers/extlibs/CudaRasterizer/CudaRasterizer/CMakeLists.txt), and ```rasterizer.h``` is located in [```SIBR_viewers/extlibs/CudaRasterizer/CudaRasterizer/cuda_rasterizer/rasterizer.h```](SIBR_viewers/extlibs/CudaRasterizer/CudaRasterizer/cuda_rasterizer/rasterizer.h)
 
 ## Running the Real-Time Viewer
 https://github.com/r4dl/StopThePop/assets/45897040/5e763600-c0d9-4055-b664-0b9ea342a248
