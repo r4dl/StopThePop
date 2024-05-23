@@ -3,16 +3,16 @@ channels:
   - pytorch
   - conda-forge
   - defaults
+  - nvidia
 dependencies:
-  - cudatoolkit=11.6
   - plyfile
-  - python=3.7.13
-  - pip=22.3.1
-  - pytorch=1.12.1
-  - torchaudio=0.12.1
-  - torchvision=0.13.1
+  - python=3.10
+  - pip
   - tqdm
   - dacite
+  - pytorch>=2.1
+  - pytorch-cuda=12.1
+  - torchvision
   - pip:
     - submodules/diff-gaussian-rasterization
     - submodules/simple-knn

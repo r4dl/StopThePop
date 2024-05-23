@@ -78,11 +78,11 @@ git clone https://github.com/r4dl/StopThePop --recursive
 
 Our default, provided install method is based on Conda package and environment management:
 ```shell
-SET DISTUTILS_USE_SDK=1 # Windows only
 conda env create --file environment.yml
 conda activate stopthepop
 ```
-> **Note:** This process assumes that you have CUDA SDK **11** installed, not **12**.
+> **Note:** This process assumes that you have CUDA SDK **12.1** installed and linked in the environment variable `CUDA_HOME`. 
+For other CUDA versions, please update the environment.yml with a version supported by PyTorch.
 
 ### Running
 
@@ -554,6 +554,7 @@ If you further want to reduce the compile time, simply specify the exact ```CUDA
 
 ## Running the Real-Time Viewer
 https://github.com/r4dl/StopThePop/assets/45897040/5e763600-c0d9-4055-b664-0b9ea342a248
+
 
 <video width="99%" controls>
   <source src="assets/real-time-viewer-demo.mp4" type="video/mp4">
