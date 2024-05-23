@@ -10,10 +10,11 @@
 #
 
 from argparse import ArgumentParser, Namespace
-from diff_gaussian_rasterization import ExtendedSettings, GlobalSortOrder, SortMode, CullingSettings, SortSettings, SortQueueSizes
+from diff_gaussian_rasterization import ExtendedSettings, GlobalSortOrder, SortMode
 import json
 import sys
 import os
+from distutils.util import strtobool
 
 class GroupParams:
     pass
@@ -85,7 +86,7 @@ class SplattingSettings():
             self.group_config = parser.add_argument_group("Splatting Config")
             self.group_config.add_argument("--splatting_config", type=str)
             
-        bool_ = lambda x: (str(x).lower() == 'true')
+        bool_ = lambda x: bool(strtobool(x))
         
         self.group_settings = parser.add_argument_group("Splatting Settings")
         self.group_settings.add_argument("--sort_mode", type=lambda sortmode: SortMode[sortmode], choices=list(SortMode))
