@@ -1,0 +1,17 @@
+name: stopthepop
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+  - nvidia
+dependencies:
+  - plyfile
+  - python=3.10
+  - pip
+  - tqdm
+  - dacite
+  - pytorch>=2.1
+  - pytorch-cuda=12.1
+  - torchvision
+  - pip:
+    - submodules/simple-knn
