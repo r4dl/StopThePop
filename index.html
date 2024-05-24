@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html class="fontawesome-i2svg-active fontawesome-i2svg-complete">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="StopThePop: Sorted Gaussian Splatting for View-Consistent Real-time Rendering">
+    <meta name="keywords" content="NeRF, Editing, Stylization, Recoloring">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>StopThePop: Sorted Gaussian Splatting for View-Consistent Real-time Rendering</title>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QZ6C9BY559"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-QZ6C9BY559');
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+    <link rel="stylesheet" href="./static/css/bulma.min.css">
+    <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+    <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+    <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+    <link rel="stylesheet" href="./static/css/index.css">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="static/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="static/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="static/favicon/favicon-16x16.png">
+    <link rel="manifest" href="static/favicon/site.webmanifest">
+
+    <link rel="stylesheet" href="test/dics.css">
+    <script src="test/dics.js"></script>
+    <script src="test/video_comparison.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script defer src="./static/js/fontawesome.all.min.js"></script>
+    <script src="./static/js/bulma-carousel.min.js"></script>
+    <script src="./static/js/bulma-slider.min.js"></script>
+    <script src="./static/js/index.js"></script>
+</head>
+
+<body>
+
+
+    <section class="hero">
+        <div class="hero-body">
+            <div class="container is-max-desktop">
+                <div class="columns is-centered">
+
+                    <div class="column has-text-centered">
+                        <h1 class="title is-1 publication-title" style="margin: 3px; padding: 2px;"><span
+                                style="font-weight: bold; margin: 0px;">StopThePop</span><span
+                                style="font-weight: lighter; margin: 0px;">: Sorted Gaussian Splatting for
+                                View-Consistent Real-time Rendering</span>
+                        </h1>
+                        <h2 class="title is-3 publication-title"
+                            style="font-weight: 100; margin: 9px; padding: 2px; color: darkslategray;">
+                            SIGGRAPH 2024 &emsp; ACM Transactions on Graphics
+                        </h2>
+                        <div class="is-size-5 publication-authors">
+                            <span class="author-block"><a href="https://r4dl.github.io">Lukas Radl</a><sup>*
+                                    1</sup></span> &emsp;
+                            <span class="author-block"><a
+                                    href="https://online.tugraz.at/tug_online/visitenkarte.show_vcard?pPersonenId=2999CD2743C7E977&pPersonenGruppe=3">Michael
+                                    Steiner</a><sup>* 1</sup></span> &emsp;
+                            <span class="author-block"><a href="https://dabeschte.github.io/">Mathias Parger</a> <sup>2</sup></span>
+                            <br>
+                            <span class="author-block"><a
+                                    href="https://scholar.google.at/citations?user=pkqf2mgAAAAJ&hl=de">Alexander
+                                    Weinrauch</a> <sup>1</sup></span> &emsp;
+                            <span class="author-block"><a href="https://snosixtyboo.github.io/">Bernhard Kerbl</a>
+                                <sup>3</sup></span> &emsp;
+                            <span class="author-block"><a href="https://www.markussteinberger.net/">Markus
+                                    Steinberger</a> <sup>1,2</sup></span>
+                        </div>
+
+                        <div class="is-size-6 publication-authors">
+                            <span class="author-block"><sup>*</sup> Both authors contributed equally to this work!</span>
+                        </div>
+
+                        <div class="is-size-5 publication-authors">
+                            <span class="author-block"><sup>1</sup> Graz University of Technology</span> &emsp;
+                            <span class="author-block"><sup>2</sup> Huawei Technologies</span> &emsp;
+                            <span class="author-block"><sup>3</sup> TU Wien</span>
+                        </div>
+
+                        <div class="is-size-5 publication-authors">
+                            <sup>1</sup>
+                            <a href="https://www.tuwien.at/en/"><img style="width:15%; padding-right: 15px;" src="static/logo/logo_lang-RGB.png"> </a>
+                            <sup>2</sup>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1275.5 287" width="15%" style="padding-right: 10px; padding-bottom: 12px;"><path fill="#24272A" d="M696.2 91.7h28.4v79c0 40.1-22.1 63.1-60.6 63.1-38.1 0-60-22.6-60-62v-80h28.4v79.1c0 23.4 11.5 35.9 32 35.9s31.8-12.2 31.8-34.9V91.7zm-160 56.4H472V91.7h-28.4v140H472v-56.9h64.1v56.9h28.4v-140h-28.4v56.4zm711.2-56.4v139.8h28V91.7h-28zm-111.5 79.7h51.7v-25.5h-51.7v-28.7h75V91.8h-103v139.8h105.7v-25.5h-77.7v-34.7zm-111.4 16.5l-31.8-96.3h-23.2l-31.8 96.3-30.9-96.2h-30.2l48.8 139.9h23.5l31.8-91.9 31.8 91.9h23.7l48.7-139.9h-29.5l-30.9 96.2zM826.1 92.5l61.1 139.1h-29.8l-12.6-29.1h-64.1l-.9 2-11.8 27.1h-29l61.7-139.9h24.8l.6.8zm6.8 81.4L812.7 127l-20.1 46.9-1.4 3.2h43l-1.3-3.2z"/><path fill="#CE0E2D" d="M164 216.8c.4-.3.5-.9.3-1.4A839.8 839.8 0 0061.8 49s-32.2 30.6-29.9 61.3a54 54 0 0018.7 36.9c28.1 27.4 96.1 62 111.9 69.9.5.2 1.1.1 1.5-.3m-10.5 23.4c-.2-.6-.8-1-1.5-1l-113.2 3.9c12.3 21.9 33 38.9 54.5 33.7 14.9-3.7 48.5-27.2 59.6-35.2.9-.7.6-1.3.6-1.4m1.7-10.1c.6-.9-.4-1.7-.4-1.7-49.7-33.6-146.1-85.2-146.1-85.2a67 67 0 0060.4 87.7c1.7.3 67.3 0 84.9-.1.5-.1.9-.3 1.2-.7m7.5-230c-4.9.4-18.2 3.5-18.2 3.5-30 7.7-37.1 35-37.1 35-5.5 17.1.1 36 .1 36 10 44.4 59.2 117.5 69.8 132.8.7.8 1.3.5 1.3.5.6-.2 1.1-.7 1.1-1.4C196.1 43.3 162.7.1 162.7.1m37.5 207.6c.6.2 1.3 0 1.6-.6 10.9-15.7 59.8-88.4 69.8-132.6 0 0 5.4-21.4.2-36 0 0-7.4-27.7-37.4-35 0 0-8.6-2.2-17.8-3.5 0 0-33.6 43.2-17.2 206.4-.1.6.3 1.1.8 1.3m26.8 31.6a2 2 0 00-1.3.9c-.1.6 0 1.1.4 1.5 10.8 7.8 43.7 30.8 59.5 35.2 0 0 29.3 10 54.7-33.7L227 239.3zM370.5 143s-96.2 51.7-146 85.3c-.5.4-.8 1-.6 1.6 0 0 .5.9 1.2.9 17.8 0 85.2.1 87-.2 6.7-.5 13.3-2 19.5-4.5 0 0 24-7.6 36.4-34.9 0 0 11.1-22.2 2.5-48.2m-155.1 73.8c.4.3 1 .4 1.5.1 16.2-8.1 83.7-42.4 111.6-69.7 0 0 17.7-14.2 18.6-37.1 2-31.7-29.9-61.1-29.9-61.1s-59 71.5-102.3 166a2 2 0 00.5 1.8"/></svg>
+                            <sup>3</sup>
+                            <a href="https://www.tuwien.at/en/"><img style="width:15%; padding-right: 15px;" src="static/logo/tuwien_logo.jpg"> </a>
+                        </div>
+
+                        <div class="column has-text-centered">
+                            <div class="publication-links">
+                                <span class="link-block">
+                                    <a href="static/paper/StopThePop.pdf"
+                                        class="external-link button is-normal is-rounded is-dark">
+                                        <span class="icon">
+                                            <svg class="svg-inline--fa fa-file-pdf fa-w-12" aria-hidden="true"
+                                                focusable="false" data-prefix="fas" data-icon="file-pdf" role="img"
+                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"
+                                                data-fa-i2svg="">
+                                                <path fill="currentColor"
+                                                    d="M181.9 256.1c-5-16-4.9-46.9-2-46.9 8.4 0 7.6 36.9 2 46.9zm-1.7 47.2c-7.7 20.2-17.3 43.3-28.4 62.7 18.3-7 39-17.2 62.9-21.9-12.7-9.6-24.9-23.4-34.5-40.8zM86.1 428.1c0 .8 13.2-5.4 34.9-40.2-6.7 6.3-29.1 24.5-34.9 40.2zM248 160h136v328c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V24C0 10.7 10.7 0 24 0h200v136c0 13.2 10.8 24 24 24zm-8 171.8c-20-12.2-33.3-29-42.7-53.8 4.5-18.5 11.6-46.6 6.2-64.2-4.7-29.4-42.4-26.5-47.8-6.8-5 18.3-.4 44.1 8.1 77-11.6 27.6-28.7 64.6-40.8 85.8-.1 0-.1.1-.2.1-27.1 13.9-73.6 44.5-54.5 68 5.6 6.9 16 10 21.5 10 17.9 0 35.7-18 61.1-61.8 25.8-8.5 54.1-19.1 79-23.2 21.7 11.8 47.1 19.5 64 19.5 29.2 0 31.2-32 19.7-43.4-13.9-13.6-54.3-9.7-73.6-7.2zM377 105L279 7c-4.5-4.5-10.6-7-17-7h-6v128h128v-6.1c0-6.3-2.5-12.4-7-16.9zm-74.1 255.3c4.1-2.7-2.5-11.9-42.8-9 37.1 15.8 42.8 9 42.8 9z">
+                                                </path>
+                                            </svg>
+                                        </span>
+                                        <span>Paper</span>
+                                    </a>
+                                </span>
+                                <!-- Video Link. -->
+                                <span class="link-block">
+                                    <a href="https://youtu.be/EmcXtHYhigk"
+                                        class="external-link button is-normal is-rounded is-dark">
+                                        <span class="icon">
+                                            <i class="fab fa-youtube"></i>
+                                        </span>
+                                        <span>Video</span>
+                                    </a>
+                                    <!-- Code Link. -->
+                                    <span class="link-block">
+                                        <a href="https://github.com/r4dl/StopThePop"
+                                            class="external-link button is-normal is-rounded is-dark">
+                                            <span class="icon">
+                                                <i class="fab fa-github"></i>
+                                            </span>
+                                            <span>Code</span>
+                                        </a>
+                                    </span>
+                                    <!-- Code Link. -->
+                                    <span class="link-block">
+                                        <a href="https://drive.google.com/file/d/1uk49LWsVjapLokTNHbTBMS8hMi3MuNDj/view?usp=sharing"
+                                            class="external-link button is-normal is-rounded is-dark">
+                                            <span class="icon">
+                                                <svg class="svg-inline--fa fa-images fa-w-18" aria-hidden="true"
+                                                    focusable="false" data-prefix="far" data-icon="images" role="img"
+                                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"
+                                                    data-fa-i2svg="">
+                                                    <path fill="currentColor"
+                                                        d="M480 416v16c0 26.51-21.49 48-48 48H48c-26.51 0-48-21.49-48-48V176c0-26.51 21.49-48 48-48h16v48H54a6 6 0 0 0-6 6v244a6 6 0 0 0 6 6h372a6 6 0 0 0 6-6v-10h48zm42-336H150a6 6 0 0 0-6 6v244a6 6 0 0 0 6 6h372a6 6 0 0 0 6-6V86a6 6 0 0 0-6-6zm6-48c26.51 0 48 21.49 48 48v256c0 26.51-21.49 48-48 48H144c-26.51 0-48-21.49-48-48V80c0-26.51 21.49-48 48-48h384zM264 144c0 22.091-17.909 40-40 40s-40-17.909-40-40 17.909-40 40-40 40 17.909 40 40zm-72 96l39.515-39.515c4.686-4.686 12.284-4.686 16.971 0L288 240l103.515-103.515c4.686-4.686 12.284-4.686 16.971 0L480 208v80H192v-48z">
+                                                    </path>
+                                                </svg>
+                                            </span>
+                                            <span>Pre-Trained Models</span>
+                                        </a>
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video id="teaser" autoplay muted loop height="100%">
+        <source src="./video/teaser.mp4"
+                type="video/mp4">
+      </video>
+      <h2 class="subtitle has-text-centered">
+        <strong>StopThePop</strong> effectively eliminates 3DGS's popping artefacts.
+        We augment the output videos with our &#xA7FB;LIP popping detection metric for a better visualization.
+      </h2>
+    </div>
+  </div>
+</section>
+
+
+    <section class="section">
+        <div class="container is-max-desktop">
+            <!-- Abstract. -->
+            <div class="columns is-centered has-text-centered">
+                <div class="column is-four-fifths">
+                    <h2 class="title is-3">Abstract</h2>
+                    <div class="content has-text-justified">
+                        <p>
+                            Gaussian Splatting has emerged as a prominent model for constructing 3D representations from
+                            images across diverse domains.
+                            However, the efficiency of the 3D Gaussian Splatting rendering pipeline relies on several
+                            simplifications.
+                            Notably, reducing Gaussian to 2D splats with a single view-space depth introduces popping
+                            and blending artifacts during view rotation.
+                            Addressing this issue requires accurate per-pixel depth computation, yet a full per-pixel
+                            sort proves excessively costly compared to a global sort operation.
+                        </p>
+                        <p>
+                            In this paper, we present a novel hierarchical rasterization approach that systematically
+                            resorts and culls splats with minimal processing overhead.
+                            Our software rasterizer <b>effectively eliminates popping artifacts and view
+                                inconsistencies</b>, as demonstrated through both quantitative and qualitative
+                            measurements.
+                            Simultaneously, our method mitigates the potential for cheating view-dependent effects with
+                            popping, ensuring a more authentic representation.
+                            Despite the elimination of cheating, our approach achieves comparable quantitative results
+                            for test images, while increasing the consistency for novel view synthesis in motion.
+                        </p>
+                        <p>
+                            Due to its design, our hierarchical approach is <b>only 4% slower</b> on average than the
+                            original Gaussian Splatting.
+                            Notably, enforcing consistency enables a reduction in the number of Gaussians by
+                            approximately half with nearly identical quality and view-consistency.
+                            Consequently, rendering performance is nearly doubled, making our approach 1.6x faster than
+                            the original Gaussian Splatting, with a 50% reduction in memory requirements.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <!--/ Video. -->
+            <div class="columns is-centered has-text-centered">
+                <div class="column is-four-fifths">
+                    <h2 class="title is-3">Video</h2>
+                    <div class="publication-video">
+                        <iframe src="https://www.youtube.com/embed/EmcXtHYhigk?rel=0&amp;showinfo=0" frameborder="0"
+                            allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hierarchical Rasterization. -->
+    <section class="section">
+        <div class="container is-max-desktop">
+            <div class="columns is-centered">
+                <div class="column is-full-width">
+                    <h2 class="title is-3">Hierarchical Rasterization</h2>
+                    <div class="content has-text-justified">
+                        <p>
+                            StopThePop drastically reduces <strong>Sort Errors</strong> compared to 3DGS, thanks to our hierarchical rasterizer. <br>
+                            To mitigate the performance overhead of resorting, we incorporate <strong>Tile-Based Culling</strong>, which removes Gaussians which do not contribute significantly before blending.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="columns is-centered">
+                <div class="column is-centered is-full-width">
+                    <h3 class="title is-4">Sort Error</h3>
+                    <div class="b-dics">
+                        <img src="static/sorterror/bicycle_3dgs.png" alt="3DGS" id="img_sort_gs">
+                        <img src="static/sorterror/bicycle_ours.png" alt="Ours" id="img_sort_ours">
+                    </div>
+                    <!-- <div class="column has-text-centered">
+                        <button class="button-17-selected" role="button" id="btn_ptd_sort"
+                        onclick="changePTD(false)">Sort Error
+                        </button>
+                        <button class="button-17" role="button" id="btn_ptd_image"
+                        onclick="changePTD(true)">Image
+                        </button>
+                    </div> -->
+                </div>
+                <div class="column is-centered is-full-width">
+                    <h3 class="title is-4">Tile-Based Culling</h3>
+                    <div class="b-dics">
+                        <img src="static/culling/bicycle_noculling.png" alt="w/o Tile-Based Culing" id="img_noculling">
+                        <img src="static/culling/bicycle_culling.png" alt="w/ Tile-Based Culing" id="img_culling">
+                    </div>
+                    <!-- <div class="column has-text-centered">
+                        <button class="button-17-selected" role="button" id="btn_culling_pixel"
+                        onclick="changeCulling(false)">Pixel-Based
+                        </button>
+                        <button class="button-17" role="button" id="btn_culling_tile"
+                        onclick="changeCulling(true)">Tile-Based
+                        </button>
+                    </div> -->
+                </div>
+
+
+                </div>
+                <h2 class="subtitle has-text-centered is-65">
+                    <strong>StopThePop</strong> reduces sort errors, while considering fewer Gaussians. 3DGS is on the left, Ours in on the right. Try selecting different scenes!
+                </h2>
+                <div class="column has-text-centered">
+                    <button class="button-17-selected" role="button" id="btn_bicycle_sort"
+                    onclick="changeSceneSortCull(this.innerText)">Bicycle
+                    </button>
+                    <button class="button-17" role="button" id="btn_bonsai_sort"
+                    onclick="changeSceneSortCull(this.innerText)">Bonsai
+                    </button>
+                    <button class="button-17" role="button" id="btn_garden_sort"
+                    onclick="changeSceneSortCull(this.innerText)">Garden
+                    </button>
+                    <button class="button-17" role="button" id="btn_playroom_sort"
+                    onclick="changeSceneSortCull(this.innerText)">Playroom
+                    </button>
+                    <button class="button-17" role="button" id="btn_room_sort"
+                    onclick="changeSceneSortCull(this.innerText)">Room
+                    </button>
+                    <button class="button-17" role="button" id="btn_stump_sort"
+                    onclick="changeSceneSortCull(this.innerText)">Stump
+                    </button>
+                    <button class="button-17" role="button" id="btn_train_sort"
+                    onclick="changeSceneSortCull(this.innerText)">Train
+                    </button>
+            </div>
+
+        </div>
+        <!--/ Image Comparisons / Stylization. -->
+    </section>
+
+    <section class="section">
+        <div class="container is-max-desktop">
+
+            <!-- More Results. -->
+            <div class="columns is-centered">
+                <div class="column is-full-width">
+
+                    <h2 class="title is-3">Results</h2>
+                    <div class="content has-text-justified">
+                        <p>Out method effectively mitigates popping artefacts, as can be seen by visualizing our proposed &#xA7FB;LIP metric.</p>
+                    </div>
+                    <!-- Local Stylization. -->
+                    <h3 class="title is-4">&#xA7FB;LIP comparison</h3>
+                </div>
+            </div>
+
+            <div class="column has-text-centered">
+                <button class="button-17-selected" role="button" id="btn_garden_flip"
+                onclick="changeSceneFLIP(this.innerText)">Garden
+                </button>
+                <button class="button-17" role="button" id="btn_train_flip"
+                onclick="changeSceneFLIP(this.innerText)">Train
+                </button>
+                <button class="button-17" role="button" id="btn_room_flip"
+                onclick="changeSceneFLIP(this.innerText)">Room
+                </button>
+                <button class="button-17" role="button" id="btn_bonsai_flip"
+                onclick="changeSceneFLIP(this.innerText)">Bonsai
+                </button>
+            </div>
+            <div class="columns is-centered">
+                <div class="column">
+                    <div class="content">
+                        <div class="columns is-centered">
+                            <div class="column is-full-width">
+                                <video class="video" id="flipvideo" loop="" playsinline="" autoplay="" muted="" src="video/garden_video_loop.mp4" onplay="resizeAndPlay(this)" style="height: 0px;"></video>
+                                <canvas class="videoMerge" id="flipvideoMerge" width="100%"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                <h2 class="subtitle has-text-centered is-65">
+                    <strong>StopThePop</strong> mitigates popping artefacts! Ours is on the left, 3DGS in on the right. We show ground-truth videos, &#xA7FB;LIP<sub><small>1</small></sub> and  &#xA7FB;LIP<sub><small>7</small></sub>.
+                </h2>
+                <div class="column has-text-centered">
+                    <button class="button-17-selected" role="button" id="btn_flip0"
+                    onclick="changeFLIP(0)">Video
+                    </button>
+                    <button class="button-17" role="button" id="btn_flip1"
+                    onclick="changeFLIP(1)">&#xA7FB;LIP<sub><small>1</small></sub>
+                    </button>
+                    <button class="button-17" role="button" id="btn_flip7"
+                    onclick="changeFLIP(7)">&#xA7FB;LIP<sub><small>7</small></sub>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="section" id="BibTeX">
+        <div class="container is-max-desktop content">
+            <h2 class="title">BibTeX</h2>
+            <div class="content has-text-justified">
+                <p>
+                    If you find our work useful, consider using a citation.
+                </p>
+            </div>
+            <pre><code id="citation_text">@article{radl2024stopthepop,
+  author    = {Radl, Lukas and Steiner, Michael and Parger, Mathias and Weinrauch, Alexander and Kerbl, Bernhard and Steinberger, Markus},
+  title     = {{StopThePop: Sorted Gaussian Splatting for View-Consistent Real-time Rendering}},
+  journal   = {ACM Transactions on Graphics},
+  number    = {43},
+  volume    = {4},
+  articleno = {64},
+  year      = {2024},
+}</code></pre>
+            <clipboard-copy aria-label="Copy"
+                class="clipcopy ClipboardButton btn btn-invisible js-clipboard-copy m-2 p-0 tooltipped-no-delay d-flex flex-justify-center flex-items-center"
+                data-copy-feedback="Copied!" data-tooltip-direction="w" value="" tabindex="0" role="button"
+                onclick="copytoclip()" id="clip-copy" style="position: absolute; top: 110px; right: 10px;">
+                <svg id='svg_cp' aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16"
+                    data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon">
+                    <path id='clipboard1'
+                        d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z">
+                    </path>
+                    <path id='clipboard2'
+                        d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z">
+                    </path>
+                    <path id='checkbox1' class="is-hidden"
+                        d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z">
+                    </path>
+                </svg>
+            </clipboard-copy>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container is-max-desktop">
+
+            <!-- Image Comparisons. -->
+            <div class="columns is-centered">
+                <div class="column is-full-width">
+                    <!-- Concurrent Work. -->
+                    <div class="columns is-centered">
+                        <div class="column is-full-width">
+                            <h2 class="title is-3">Related Work</h2>
+
+                            <div class="content has-text-justified">
+                                <p>[<a href="https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/">Kerbl et. al.
+                                        2023</a>]
+                                    Kerbl, B., Kopanas, G., Leimkühler, T., Drettakis, G. 2023.
+                                    <b>3D Gaussian Splatting for Real-Time Radiance Field Rendering</b>.
+                                    ACM TOG 42(4).
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/ Concurrent Work. -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-8">
+                    <div class="content">
+                        <p>
+                            We thank the authors of <a href="https://nerfies.github.io/">Nerfies</a> who kindly open
+                            sourced
+                            the template of this website, which is located <a
+                                href="https://github.com/nerfies/nerfies.github.io">here</a>. 
+                                The Video Comparison slider for &#xA7FB;LIP is inspired by <a href="https://dorverbin.github.io/refnerf/">Ref-NeRF</a> and <a href="https://reconfusion.github.io/">Reconfusion</a>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>
