@@ -93,6 +93,20 @@ pip install submodules/diff-gaussian-rasterization
 
 > **Note:** This can take several minutes. If you experience unreasonably long build times, consider using [our fast build mode](#stopthepop_fastbuild).
 
+### CUDA Extensions Fix (If Installation Fails)
+
+If you encounter CUDA compilation errors (e.g., `FLT_MAX undefined`, `illegal memory access`, or build failures), use our automated fix script:
+
+```shell
+./cuda_extensions_fix.sh
+```
+
+This script will:
+- Auto-detect your GPU architecture and optimize CUDA compilation settings
+- Fix common compilation issues (including `FLT_MAX` errors)
+- Build and test both `simple-knn` and `diff-gaussian-rasterization` extensions
+- Apply memory-safe optimizations for various GPU types (RTX 3060-4090, etc.)
+
 ### Running
 
 Our implementation includes 4 flavors of Gaussian Splatting:
