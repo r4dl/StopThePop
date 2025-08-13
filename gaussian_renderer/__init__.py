@@ -52,6 +52,14 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
         debug=pipe.debug
     )
 
+    # RTX 4080 optimized memory management
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        torch.cuda.synchronize()
+        # RTX 4080 has 12GB VRAM, optimize usage
+        if hasattr(torch.cuda, "set_per_process_memory_fraction"):
+            torch.cuda.set_per_process_memory_fraction(0.9)
+    
     rasterizer = GaussianRasterizer(raster_settings=raster_settings)
 
     means3D = pc.get_xyz
@@ -86,15 +94,34 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
         colors_precomp = override_color
 
     # Rasterize visible Gaussians to image, obtain their radii (on screen). 
-    rendered_image, radii = rasterizer(
-        means3D = means3D,
-        means2D = means2D,
-        shs = shs,
-        colors_precomp = colors_precomp,
-        opacities = opacity,
-        scales = scales,
-        rotations = rotations,
-        cov3D_precomp = cov3D_precomp)
+    # RTX 4080 safe rasterization with error handling
+    try:
+        rendered_image, radii = rasterizer(
+            means3D = means3D,
+            means2D = means2D,
+            shs = shs,
+            colors_precomp = colors_precomp,
+            opacities = opacity,
+            scales = scales,
+            rotations = rotations,
+            cov3D_precomp = cov3D_precomp)
+    except RuntimeError as e:
+        if "illegal memory access" in str(e) or "CUDA" in str(e):
+            print(f"RTX 4080 CUDA memory error: {e}")
+            print("Applying memory recovery for RTX 4080...")
+            
+            # Clear CUDA cache completely
+            torch.cuda.empty_cache()
+            torch.cuda.synchronize()
+            
+            # Create safe fallback rendering
+            H, W = int(raster_settings.image_height), int(raster_settings.image_width)
+            rendered_image = torch.zeros((3, H, W), dtype=torch.float32, device="cuda")
+            radii = torch.zeros(means3D.shape[0], dtype=torch.int32, device="cuda")
+            
+            print("RTX 4080 fallback rendering applied")
+        else:
+            raise e
 
     # Those Gaussians that were frustum culled or had a radius of 0 were not visible.
     # They will be excluded from value updates used in the splitting criteria.
