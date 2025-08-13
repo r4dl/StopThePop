@@ -52,13 +52,15 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
         debug=pipe.debug
     )
 
-    # RTX 4080 optimized memory management
+    # GPU-optimized memory management
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
         torch.cuda.synchronize()
-        # RTX 4080 has 12GB VRAM, optimize usage
+        # Optimize memory usage based on available VRAM
         if hasattr(torch.cuda, "set_per_process_memory_fraction"):
-            torch.cuda.set_per_process_memory_fraction(0.9)
+            gpu_memory_gb = torch.cuda.get_device_properties(0).total_memory // (1024**3)
+            memory_fraction = 0.9 if gpu_memory_gb >= 12 else 0.85 if gpu_memory_gb >= 8 else 0.8
+            torch.cuda.set_per_process_memory_fraction(memory_fraction)
     
     rasterizer = GaussianRasterizer(raster_settings=raster_settings)
 
@@ -94,7 +96,7 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
         colors_precomp = override_color
 
     # Rasterize visible Gaussians to image, obtain their radii (on screen). 
-    # RTX 4080 safe rasterization with error handling
+    # CUDA memory-safe rasterization with error handling
     try:
         rendered_image, radii = rasterizer(
             means3D = means3D,
@@ -107,8 +109,9 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
             cov3D_precomp = cov3D_precomp)
     except RuntimeError as e:
         if "illegal memory access" in str(e) or "CUDA" in str(e):
-            print(f"RTX 4080 CUDA memory error: {e}")
-            print("Applying memory recovery for RTX 4080...")
+            gpu_name = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "Unknown GPU"
+            print(f"CUDA memory error on {gpu_name}: {e}")
+            print("Applying memory recovery...")
             
             # Clear CUDA cache completely
             torch.cuda.empty_cache()
@@ -119,7 +122,7 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
             rendered_image = torch.zeros((3, H, W), dtype=torch.float32, device="cuda")
             radii = torch.zeros(means3D.shape[0], dtype=torch.int32, device="cuda")
             
-            print("RTX 4080 fallback rendering applied")
+            print(f"Fallback rendering applied for {gpu_name}")
         else:
             raise e
 

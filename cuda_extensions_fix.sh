@@ -1,7 +1,7 @@
 #!/bin/bash
-# Complete fix for CUDA memory access error on host machine - RTX 4080 optimized
+# Complete fix for CUDA memory access errors - Auto-detects GPU architecture
 
-echo "Fixing StopThePop CUDA memory access error (RTX 4080 optimized)..."
+echo "Fixing StopThePop CUDA memory access errors with auto-detected GPU optimizations..."
 
 cd /home/mas/proj/sensyn/StopThePop
 source ~/anaconda3/etc/profile.d/conda.sh
@@ -28,18 +28,36 @@ pip uninstall diff-gaussian-rasterization simple-knn -y 2>/dev/null
 rm -rf submodules/simple-knn/build submodules/simple-knn/dist submodules/simple-knn/*.egg-info
 rm -rf submodules/diff-gaussian-rasterization/build submodules/diff-gaussian-rasterization/dist submodules/diff-gaussian-rasterization/*.egg-info
 
-# Step 3: Set RTX 4080 specific CUDA architecture
-echo "=== Setting RTX 4080 CUDA architecture ==="
+# Step 3: Auto-detect GPU architecture and set CUDA settings
+echo "=== Auto-detecting GPU architecture ==="
 export CUDA_HOME=/usr/local/cuda
 export FORCE_CUDA=1
 export CUDA_LAUNCH_BLOCKING=1
 
-# RTX 4080 has compute capability 8.9
-export TORCH_CUDA_ARCH_LIST="8.9"
-echo "Set TORCH_CUDA_ARCH_LIST=8.9 for RTX 4080"
+# Auto-detect GPU compute capability
+GPU_COMPUTE_CAP=$(python -c "
+import torch
+if torch.cuda.is_available():
+    cap = torch.cuda.get_device_capability(0)
+    print(f'{cap[0]}.{cap[1]}')
+else:
+    print('7.5')  # Fallback for older GPUs
+")
 
-# Step 4: Fix and build simple-knn for RTX 4080
-echo "=== Fixing and building simple-knn for RTX 4080 ==="
+GPU_NAME=$(python -c "
+import torch
+if torch.cuda.is_available():
+    print(torch.cuda.get_device_name(0))
+else:
+    print('Unknown GPU')
+")
+
+export TORCH_CUDA_ARCH_LIST="$GPU_COMPUTE_CAP"
+echo "Detected GPU: $GPU_NAME"
+echo "Set TORCH_CUDA_ARCH_LIST=$GPU_COMPUTE_CAP for detected GPU architecture"
+
+# Step 4: Fix and build simple-knn with auto-detected GPU settings
+echo "=== Fixing and building simple-knn for $GPU_NAME ==="
 cd submodules/simple-knn
 
 # Fix the FLT_MAX issue by adding proper include
@@ -58,8 +76,8 @@ else
     pip install -e . --no-build-isolation --no-cache-dir -v
 fi
 
-# Step 5: Build diff-gaussian-rasterization
-echo "=== Building diff-gaussian-rasterization for RTX 4080 ==="
+# Step 5: Build diff-gaussian-rasterization  
+echo "=== Building diff-gaussian-rasterization for $GPU_NAME ==="
 cd ../diff-gaussian-rasterization
 
 # Try setup.py first
@@ -114,8 +132,8 @@ except Exception as e:
     print(f'✗ diff_gaussian_rasterization failed: {e}')
 "
 
-# Step 7: Apply RTX 4080 optimized renderer fixes
-echo "=== Applying RTX 4080 optimized renderer fixes ==="
+# Step 7: Apply GPU-optimized renderer fixes
+echo "=== Applying GPU-optimized renderer fixes for $GPU_NAME ==="
 if [ ! -f gaussian_renderer/__init__.py.backup ]; then
     cp gaussian_renderer/__init__.py gaussian_renderer/__init__.py.backup
 fi
@@ -163,21 +181,42 @@ fi
 
 # Apply targeted fixes using simple string replacement
 python3 << 'EOF'
+import torch
+
 with open('gaussian_renderer/__init__.py', 'r') as f:
     content = f.read()
 
+# Get GPU information for dynamic optimization
+if torch.cuda.is_available():
+    gpu_name = torch.cuda.get_device_name(0)
+    gpu_memory_gb = torch.cuda.get_device_properties(0).total_memory // (1024**3)
+    compute_cap = torch.cuda.get_device_capability(0)
+    compute_cap_str = f"{compute_cap[0]}.{compute_cap[1]}"
+else:
+    gpu_name = "Unknown GPU"
+    gpu_memory_gb = 8  # Default fallback
+    compute_cap_str = "7.5"
+
+# Calculate memory fraction based on available VRAM
+if gpu_memory_gb >= 12:
+    memory_fraction = 0.9  # High-end GPUs
+elif gpu_memory_gb >= 8:
+    memory_fraction = 0.85  # Mid-range GPUs
+else:
+    memory_fraction = 0.8  # Lower-end GPUs
+
 # Only apply fixes if not already applied
-if 'RTX 4080 safe rasterization' not in content:
+if 'CUDA memory-safe rasterization' not in content:
     # Add memory management before rasterizer creation
     content = content.replace(
         'rasterizer = GaussianRasterizer(raster_settings=raster_settings)',
-        '''# RTX 4080 optimized memory management
+        f'''# GPU-optimized memory management for {gpu_name}
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
         torch.cuda.synchronize()
-        # RTX 4080 has 12GB VRAM, optimize usage
+        # Optimize for {gpu_memory_gb}GB VRAM
         if hasattr(torch.cuda, "set_per_process_memory_fraction"):
-            torch.cuda.set_per_process_memory_fraction(0.9)
+            torch.cuda.set_per_process_memory_fraction({memory_fraction})
     
     rasterizer = GaussianRasterizer(raster_settings=raster_settings)'''
     )
@@ -193,7 +232,7 @@ if 'RTX 4080 safe rasterization' not in content:
         rotations = rotations,
         cov3D_precomp = cov3D_precomp)'''
 
-    safe_call = '''# RTX 4080 safe rasterization with error handling
+    safe_call = f'''# CUDA memory-safe rasterization with error handling
     try:
         rendered_image, radii = rasterizer(
             means3D = means3D,
@@ -206,8 +245,8 @@ if 'RTX 4080 safe rasterization' not in content:
             cov3D_precomp = cov3D_precomp)
     except RuntimeError as e:
         if "illegal memory access" in str(e) or "CUDA" in str(e):
-            print(f"RTX 4080 CUDA memory error: {e}")
-            print("Applying memory recovery for RTX 4080...")
+            print(f"CUDA memory error on {{gpu_name}}: {{e}}")
+            print("Applying memory recovery...")
             
             # Clear CUDA cache completely
             torch.cuda.empty_cache()
@@ -218,7 +257,7 @@ if 'RTX 4080 safe rasterization' not in content:
             rendered_image = torch.zeros((3, H, W), dtype=torch.float32, device="cuda")
             radii = torch.zeros(means3D.shape[0], dtype=torch.int32, device="cuda")
             
-            print("RTX 4080 fallback rendering applied")
+            print(f"Fallback rendering applied for {{gpu_name}}")
         else:
             raise e'''
 
@@ -227,13 +266,13 @@ if 'RTX 4080 safe rasterization' not in content:
     with open('gaussian_renderer/__init__.py', 'w') as f:
         f.write(content)
     
-    print("Applied RTX 4080 memory safety fixes")
+    print(f"Applied GPU memory safety fixes for {gpu_name}")
 else:
-    print("RTX 4080 fixes already applied")
+    print("GPU memory safety fixes already applied")
 EOF
 
-# Step 8: Test training with RTX 4080 optimizations
-echo "=== Testing training with RTX 4080 optimizations ==="
+# Step 8: Test training with GPU optimizations
+echo "=== Testing training with $GPU_NAME optimizations ==="
 export CUDA_LAUNCH_BLOCKING=1
 
 echo "Starting test training..."
@@ -244,9 +283,9 @@ python train.py \
     --test_iterations 2 \
     --save_iterations 5
 
-echo "=== RTX 4080 Fix Complete ==="
+echo "=== GPU Optimization Fix Complete ==="
 if [ $? -eq 0 ]; then
-    echo "✓ Training test successful on RTX 4080!"
+    echo "✓ Training test successful on $GPU_NAME!"
     echo "You can now run the full training:"
     echo "  python train.py --splatting_config configs/hierarchical.json -s data/"
 else
