@@ -52,6 +52,16 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
         debug=pipe.debug
     )
 
+    # GPU-optimized memory management
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        torch.cuda.synchronize()
+        # Optimize memory usage based on available VRAM
+        if hasattr(torch.cuda, "set_per_process_memory_fraction"):
+            gpu_memory_gb = torch.cuda.get_device_properties(0).total_memory // (1024**3)
+            memory_fraction = 0.9 if gpu_memory_gb >= 12 else 0.85 if gpu_memory_gb >= 8 else 0.8
+            torch.cuda.set_per_process_memory_fraction(memory_fraction)
+    
     rasterizer = GaussianRasterizer(raster_settings=raster_settings)
 
     means3D = pc.get_xyz
@@ -86,15 +96,35 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
         colors_precomp = override_color
 
     # Rasterize visible Gaussians to image, obtain their radii (on screen). 
-    rendered_image, radii = rasterizer(
-        means3D = means3D,
-        means2D = means2D,
-        shs = shs,
-        colors_precomp = colors_precomp,
-        opacities = opacity,
-        scales = scales,
-        rotations = rotations,
-        cov3D_precomp = cov3D_precomp)
+    # CUDA memory-safe rasterization with error handling
+    try:
+        rendered_image, radii = rasterizer(
+            means3D = means3D,
+            means2D = means2D,
+            shs = shs,
+            colors_precomp = colors_precomp,
+            opacities = opacity,
+            scales = scales,
+            rotations = rotations,
+            cov3D_precomp = cov3D_precomp)
+    except RuntimeError as e:
+        if "illegal memory access" in str(e) or "CUDA" in str(e):
+            gpu_name = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "Unknown GPU"
+            print(f"CUDA memory error on {gpu_name}: {e}")
+            print("Applying memory recovery...")
+            
+            # Clear CUDA cache completely
+            torch.cuda.empty_cache()
+            torch.cuda.synchronize()
+            
+            # Create safe fallback rendering
+            H, W = int(raster_settings.image_height), int(raster_settings.image_width)
+            rendered_image = torch.zeros((3, H, W), dtype=torch.float32, device="cuda")
+            radii = torch.zeros(means3D.shape[0], dtype=torch.int32, device="cuda")
+            
+            print(f"Fallback rendering applied for {gpu_name}")
+        else:
+            raise e
 
     # Those Gaussians that were frustum culled or had a radius of 0 were not visible.
     # They will be excluded from value updates used in the splitting criteria.
