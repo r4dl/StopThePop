@@ -1,7 +1,7 @@
 # StopThePop
 ## Sorted Gaussian Splatting for View-Consistent Real-time Rendering
 [Lukas Radl](https://r4dl.github.io/)<sup>&#42;</sup>, 
-[Michael Steiner](https://scholar.google.com/citations?hl=de&user=Pbtgcz8AAAAJ)<sup>&#42;</sup>,
+[Michael Steiner](https://steimich96.github.io/)<sup>&#42;</sup>,
 [Mathias Parger](https://dabeschte.github.io/), 
 [Alexander Weinrauch](https://scholar.google.com/citations?user=pkqf2mgAAAAJ&hl=de&oi=ao), 
 [Bernhard Kerbl](https://snosixtyboo.github.io/), 
@@ -13,7 +13,7 @@
 | [Full Paper](https://arxiv.org/abs/2402.00525) 
 | [Video](https://youtu.be/EmcXtHYhigk) 
 | [T&T+DB COLMAP (650MB)](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/datasets/input/tandt_db.zip) 
-| [Pre-trained Models (18.13 GB)](https://drive.google.com/file/d/1uk49LWsVjapLokTNHbTBMS8hMi3MuNDj/view?usp=sharing) 
+| [Pre-trained Models (9 GB)](https://cloud.tugraz.at/index.php/s/xXzQBsKBSMPPMr6) 
 <br>
 
 ![Teaser image](assets/teaser.gif)
@@ -86,9 +86,10 @@ conda activate stopthepop
 > **Note:** This process assumes that you have CUDA SDK **11** installed.
 Optionally, you can use CUDA **12** and Pytorch **2.1**, by using `environment_cuda12.yml` instead of `environment.yml`.
 
-Subsequently, install the CUDA rasterizer:
+Subsequently, install the CUDA rasterizer and simple-knn:
 ```shell
-pip install submodules/diff-gaussian-rasterization
+pip install submodules/simple-knn --no-build-isolation
+pip install submodules/diff-gaussian-rasterization --no-build-isolation
 ```
 
 > **Note:** This can take several minutes. If you experience unreasonably long build times, consider using [our fast build mode](#stopthepop_fastbuild).
